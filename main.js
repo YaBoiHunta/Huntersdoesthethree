@@ -17,10 +17,11 @@ const controls = new OrbitControls(camera, renderer.domElement);
 const loader = new GLTFLoader();
 
 // Sets up the red box gemoetry. And then adds it to the scene.
-const geometry = new THREE.BoxGeometry(2, 2, 2);
+const geometry = new THREE.BoxGeometry(2, 2, 2); // This is where you would adjust the size of the cube. X, Y, Z
 const material = new THREE.MeshStandardMaterial({ color: "red" });
 const cube = new THREE.Mesh(geometry, material);
 // This is where you would add your adjustments to the cube.
+
 // Define the geometry for the rectangle. Adjust the dimensions as needed.
 const rectangleGeometry = new THREE.BoxGeometry(10, 1, 4);
 
@@ -112,7 +113,7 @@ function render() {
     requestAnimationFrame(render);
 // this is where we would calculate the new postion of the rectangle.
     const radius = 5; // the radius of the circle that the rectangle will move along.
-    const speed = 0.0001; // THe speed of what the rectangle will move at.
+    const speed = 0.001; // THe speed of what the rectangle will move at.
     const angle = performance.now() * speed; // This is the angle that the rectangle will move at.
     rectangle.position.x = Math.cos(angle) * radius;
     rectangle.position.z = Math.sin(angle) * radius;
