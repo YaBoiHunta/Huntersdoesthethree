@@ -112,7 +112,7 @@ function render() {
     requestAnimationFrame(render);
 // this is where we would calculate the new postion of the rectangle.
     const radius = 5; // the radius of the circle that the rectangle will move along.
-    const speed = 0.01; // THe speed of what the rectangle will move at.
+    const speed = 0.0001; // THe speed of what the rectangle will move at.
     const angle = performance.now() * speed; // This is the angle that the rectangle will move at.
     rectangle.position.x = Math.cos(angle) * radius;
     rectangle.position.z = Math.sin(angle) * radius;
