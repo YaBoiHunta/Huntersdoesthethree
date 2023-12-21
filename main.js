@@ -2,132 +2,153 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { Tween } from '@tweenjs/tween.js';
-// setup the secene of hte 3D world.
-const scene = new THREE.Scene();
-// setup the camera for the view.
-const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-// setup the renderer for the scene.
 
-const renderer = new THREE.WebGLRenderer();
+// Set up the scene
+function setupScene() {
+    const scene = new THREE.Scene();
+    return scene;
+}
 
-renderer.setSize(window.innerWidth, window.innerHeight);
-document.body.appendChild(renderer.domElement);
+// Set up the camera
+function setupCamera() {
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    camera.position.z = 10;
+    return camera;
+}
 
-const controls = new OrbitControls(camera, renderer.domElement);
-const loader = new GLTFLoader();
+// Set up the renderer
+function setupRenderer() {
+    const renderer = new THREE.WebGLRenderer();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.body.appendChild(renderer.domElement);
+    renderer.shadowMap.enabled = true;
+    return renderer;
+}
 
-// Sets up the red box gemoetry. And then adds it to the scene.
-const geometry = new THREE.BoxGeometry(2, 2, 2); // This is where you would adjust the size of the cube. X, Y, Z
-const material = new THREE.MeshStandardMaterial({ color: "red" });
-const cube = new THREE.Mesh(geometry, material);
-// This is where you would add your adjustments to the cube.
+// Set up the controls
+function setupControls(camera, renderer) {
+    const controls = new OrbitControls(camera, renderer.domElement);
+    return controls;
+}
 
-// Define the geometry for the rectangle. Adjust the dimensions as needed.
-const rectangleGeometry = new THREE.BoxGeometry(10, 1, 4);
+// Set up the light
+function setupLight(scene) {
+    const light = new THREE.PointLight(0xffffff, 750.0); // To tell the computer that im using a HEX number, include that 0x in front of the color. 0xffffff is white. 1.0 is the intensity of the light.
+    light.position.set(1, 5, 5); // x, y, z position of the light.
+    light.castShadow = true;
+    scene.add(light);
+    return light;
+}
 
-// Define the material for the rectangle.
-const rectangleMaterial = new THREE.MeshStandardMaterial({ color: "purple" });
+// Create the cube mesh
+function createCube(scene) {
+    const geometry = new THREE.BoxGeometry(2, 2, 2);
+    const material = new THREE.MeshStandardMaterial({ color: "red" });
+    const cube = new THREE.Mesh(geometry, material);
+    cube.position.y = 1;
+    cube.castShadow = true;
+    cube.receiveShadow = true;
+    scene.add(cube);
+    return cube;
+}
+// Create the torus mesh
+function createTorus(scene) {
+    const geometry = new THREE.TorusGeometry(3, .16, 16, 100);
+    const material = new THREE.MeshStandardMaterial({ color: "blue" });
+    const torus = new THREE.Mesh(geometry, material);
+    torus.position.y = 2;
+    torus.castShadow = true;
+    torus.receiveShadow = true;
+    scene.add(torus);
+    return torus;
+}
 
-// Create the rectangle mesh.
-const rectangle = new THREE.Mesh(rectangleGeometry, rectangleMaterial);
+// Create the gem mesh
+function createGem(scene) {
+    const geometry = new THREE.OctahedronGeometry(1);
+    const material = new THREE.MeshStandardMaterial({ color: "cyan" });
+    const gem = new THREE.Mesh(geometry, material);
+    gem.position.y = 6; // Adjust this value to place the gem on top of the torus
+    gem.castShadow = true;
+    gem.receiveShadow = true;
+    scene.add(gem);
+    return gem;
+}
 
-// Position the rectangle on top of the cube.
-rectangle.position.y = 2 + 1/2; // cube's top y-coordinate + half of rectangle's height
+// Create the plane mesh
+function createPlane(scene) {
+    const planeGeometry = new THREE.PlaneGeometry(20, 20);
+    const planeMaterial = new THREE.MeshStandardMaterial({ color: "gray", side: THREE.DoubleSide });
+    const plane = new THREE.Mesh(planeGeometry, planeMaterial);
+    plane.rotation.x = Math.PI / 2;
+    plane.receiveShadow = true;
+    scene.add(plane);
+    return plane;
+}
 
-// Add the rectangle to the scene.
-scene.add(rectangle);
+// Create the rectangle mesh
+function createRectangle(scene, cube, plane) {
+    const rectangleGeometry = new THREE.BoxGeometry(10, 1, 4);
+    const rectangleMaterial = new THREE.MeshStandardMaterial({ color: "purple" });
+    const rectangle = new THREE.Mesh(rectangleGeometry, rectangleMaterial);
+    rectangle.position.y = cube.position.y + 1 / 2;
+    rectangle.position.z = plane.position.z;
+    scene.add(rectangle);
+    return rectangle;
+}
 
-// this Sets where the cube is located.
-cube.position.y = 1;
-scene.add(cube);
-// This sets where the camera is located.
-camera.position.z = 10;
-// This sets up the grid size.
-const size = 50;
-const divisions = 50;
-const gridHelper = new THREE.GridHelper(size, divisions);
-// Then add it to the scene.
-scene.add(gridHelper);
-
-const raycaster = new THREE.Raycaster();
-const mouse = new THREE.Vector2();
-
-// Create a directional light. 
-const light = new THREE.DirectionalLight(0xffffff, 1.0);
-
-// Set its postion
-light.position.set(2, 2, 2);
-// Enable the shadow casting for this light.
-light.castShadow = true;
-
-// add it to the scene
-scene.add(light);
-
-cube.castShadow = true;
-cube.receiveShadow = true;
-
-
-// Mouse click function 
-/**
- * Handles the mouse click event.
- * 
- * @param {MouseEvent} event - The mouse click event object.
- */
-function onMouseClick(event) {
-    // calculate mouse position in normalized device coordinates
-    // (-1 to +1) for both components
+// Handle the mouse click event
+function onMouseClick(event, camera, cube) {
+    const mouse = new THREE.Vector2();
     mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
     mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
-
-    if (intersects[i].object === cube) {
-        // create a new position for the camera
-        const newPosition = new THREE.Vector3(0, 0, 10);
-    
-        // create a tween for the camera's position
-        new Tween(camera.position)
-            .to(newPosition, 2000) // transition over 2000 milliseconds
-            .easing(TWEEN.Easing.Quadratic.Out) // use easing for a smoother transition
-            .start();
-    }
-
-    // update the picking ray with the camera and mouse position
+    const raycaster = new THREE.Raycaster();
     raycaster.setFromCamera(mouse, camera);
-
-    // calculate objects intersecting the picking ray
     const intersects = raycaster.intersectObjects(scene.children);
-
     for (let i = 0; i < intersects.length; i++) {
-        // check if the intersected object is our cube
         if (intersects[i].object === cube) {
-            // transition to a different camera angle
-            camera.position.set(0, 0, 10); // set to desired position
-            camera.lookAt(cube.position); // make the camera look at the cube
+            const newPosition = new THREE.Vector3(0, 0, 10);
+            new Tween(camera.position)
+                .to(newPosition, 2000)
+                .easing(TWEEN.Easing.Quadratic.Out)
+                .start();
         }
     }
 }
 
-window.addEventListener('click', onMouseClick, false);
-
-
-function render() {
-    requestAnimationFrame(render);
-// this is where we would calculate the new postion of the rectangle.
-    const radius = 5; // the radius of the circle that the rectangle will move along.
-    const speed = 0.001; // THe speed of what the rectangle will move at.
-    const angle = performance.now() * speed; // This is the angle that the rectangle will move at.
+// Update the position of the rectangle
+function updateRectanglePosition(rectangle, cube) {
+    const radius = 5;
+    const speed = 0.001;
+    const angle = performance.now() * speed;
     rectangle.position.x = Math.cos(angle) * radius;
     rectangle.position.z = Math.sin(angle) * radius;
-    renderer.render(scene, camera);
-    renderer.shadowMap.enabled = true;
-    
     rectangle.lookAt(cube.position);
+}
 
+// Set up the scene, camera, renderer, controls, light, cube, plane, and rectangle
+const scene = setupScene();
+const camera = setupCamera();
+const renderer = setupRenderer();
+const controls = setupControls(camera, renderer);
+const light = setupLight(scene);
+const cube = createCube(scene);
+const plane = createPlane(scene);
+const rectangle = createRectangle(scene, cube, plane);
+const torus = createTorus(scene);
+const gem = createGem(scene);
+
+// Handle the mouse click event
+window.addEventListener('click', (event) => {
+    onMouseClick(event, camera, cube);
+}, false);
+
+// Render the scene and update the position of the rectangle
+function render() {
+    requestAnimationFrame(render);
+    updateRectanglePosition(rectangle, cube);
     renderer.render(scene, camera);
 }
 
+// Start rendering
 render();
-
-
-
-
-
