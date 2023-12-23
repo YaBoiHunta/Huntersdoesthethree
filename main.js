@@ -13,6 +13,7 @@ function setupScene() {
 function setupCamera() {
     const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
     camera.position.z = 10;
+    camera.position.y = 5;
     return camera;
 }
 
@@ -33,12 +34,96 @@ function setupControls(camera, renderer) {
 
 // Set up the light
 function setupLight(scene) {
-    const light = new THREE.PointLight(0xffffff, 750.0); // To tell the computer that im using a HEX number, include that 0x in front of the color. 0xffffff is white. 1.0 is the intensity of the light.
+    const light = new THREE.PointLight(0xffffff, 100.0); // To tell the computer that im using a HEX number, include that 0x in front of the color. 0xffffff is white. 1.0 is the intensity of the light.
     light.position.set(1, 5, 5); // x, y, z position of the light.
     light.castShadow = true;
     scene.add(light);
     return light;
 }
+
+
+// Create the skateboard mesh
+function createSkateboard(scene) {
+    // Create the board
+    const boardGeometry = new THREE.BoxGeometry(1, 0.1, 0.3);
+    const boardMaterial = new THREE.MeshStandardMaterial({ color: "Red" });
+    const board = new THREE.Mesh(boardGeometry, boardMaterial);
+    board.position.y = 0.15;
+    board.castShadow = true;
+    board.receiveShadow = true;
+
+    // Create the wheels
+    const wheelGeometry = new THREE.CylinderGeometry(0.05, 0.05, 0.1, 32);
+    const wheelMaterial = new THREE.MeshStandardMaterial({ color: "green" });
+    const wheel1 = new THREE.Mesh(wheelGeometry, wheelMaterial);
+    wheel1.position.set(-0.4, 0.05, 0.1);
+    wheel1.rotation.y = Math.PI / 2;
+    wheel1.rotation.z = Math.PI / 2;
+    
+    wheel1.castShadow = true;
+    wheel1.receiveShadow = true;
+
+    const wheel2 = wheel1.clone();
+    wheel2.position.x = 0.4;
+
+    const wheel3 = wheel1.clone();
+    wheel3.position.z = -0.1;
+
+    const wheel4 = wheel2.clone();
+    wheel4.position.z = -0.1;
+
+    // Create the trucks
+    const truckGeometry = new THREE.BoxGeometry(0.02, 0.02, 0.2);
+    const truckMaterial = new THREE.MeshStandardMaterial({ color: "silver" });
+    const truck1 = new THREE.Mesh(truckGeometry, truckMaterial);
+    truck1.position.set(-0.4, 0.1, 0);
+    truck1.castShadow = true;
+    truck1.receiveShadow = true;
+
+    const truck2 = truck1.clone();
+    truck2.position.x = 0.4;
+
+    // Create a group and add the board, wheels, and trucks to it
+    const skateboard = new THREE.Group();
+    skateboard.add(board);
+    skateboard.add(wheel1);
+    skateboard.add(wheel2);
+    skateboard.add(wheel3);
+    skateboard.add(wheel4);
+    skateboard.add(truck1);
+    skateboard.add(truck2);
+
+    scene.add(skateboard);
+    return skateboard;
+}
+
+// Create the function.
+function createLampPost(scene) {
+    const postGeometry = new THREE.CylinderGeometry(.5, 1, 6);
+    const postMaterial = new THREE.MeshStandardMaterial({ color: "silver" });
+    const post = new THREE.Mesh(postGeometry, postMaterial);
+    post.position.y = 3;
+    post.position.z = 10;
+    post.castShadow = true;
+    post.receiveShadow = true;
+    
+    // Create the light at the top of the post.
+    const postLight = new THREE.PointLight(0xffffff, 1.0);
+    light.position.y = 10;
+    light.position.z = 10;
+    light.castShadow = true;
+
+    // Create a group and add the post and light to it.
+    const lampPost = new THREE.Group();
+    lampPost.add(post);
+    lampPost.add(postLight);  
+    
+    scene.add(lampPost);
+    return lampPost;
+}
+
+    
+
 
 // Create the cube mesh
 function createCube(scene) {
@@ -86,6 +171,7 @@ function createPlane(scene) {
     return plane;
 }
 
+
 // Create the rectangle mesh
 function createRectangle(scene, cube, plane) {
     const rectangleGeometry = new THREE.BoxGeometry(10, 1, 4);
@@ -97,36 +183,18 @@ function createRectangle(scene, cube, plane) {
     return rectangle;
 }
 
-// Handle the mouse click event
-function onMouseClick(event, camera, cube) {
-    const mouse = new THREE.Vector2();
-    mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-    mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
-    const raycaster = new THREE.Raycaster();
-    raycaster.setFromCamera(mouse, camera);
-    const intersects = raycaster.intersectObjects(scene.children);
-    for (let i = 0; i < intersects.length; i++) {
-        if (intersects[i].object === cube) {
-            const newPosition = new THREE.Vector3(0, 0, 10);
-            new Tween(camera.position)
-                .to(newPosition, 2000)
-                .easing(TWEEN.Easing.Quadratic.Out)
-                .start();
-        }
-    }
-}
 
 // Update the position of the rectangle
 function updateRectanglePosition(rectangle, cube) {
     const radius = 5;
-    const speed = 0.001;
+    const speed = .001;
     const angle = performance.now() * speed;
     rectangle.position.x = Math.cos(angle) * radius;
     rectangle.position.z = Math.sin(angle) * radius;
     rectangle.lookAt(cube.position);
 }
 
-// Set up the scene, camera, renderer, controls, light, cube, plane, and rectangle
+// Set up the scene, camera, renderer, controls, light, cube, plane, and rectangle and other objects in the scene
 const scene = setupScene();
 const camera = setupCamera();
 const renderer = setupRenderer();
@@ -137,6 +205,17 @@ const plane = createPlane(scene);
 const rectangle = createRectangle(scene, cube, plane);
 const torus = createTorus(scene);
 const gem = createGem(scene);
+const skateboard1 = createSkateboard(scene);
+skateboard1.position.set(-3, .5, 2);
+const skateboard2 = createSkateboard(scene);
+skateboard2.position.set(3, .5, 2);
+const skateboard3 = createSkateboard(scene);
+skateboard3.position.set(1, .5, 4);
+
+const lampPost = createLampPost(scene);
+
+
+
 
 // Handle the mouse click event
 window.addEventListener('click', (event) => {
