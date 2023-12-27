@@ -3,6 +3,17 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { Tween } from '@tweenjs/tween.js';
 
+const loader = new THREE.CubeTextureLoader();
+const texture = loader.load([
+    'right.png', // right
+    'left.png', // left
+    'top.png', // top
+    'bottom.png', // bottom
+    'front.png', // front
+    'back.png' // back
+]);
+
+
 // Set up the scene
 function setupScene() {
     const scene = new THREE.Scene();
@@ -97,7 +108,6 @@ function createSkateboard(scene) {
     return skateboard;
 }
 
-// Create the function.
 function createLampPost(scene) {
     const postGeometry = new THREE.CylinderGeometry(.5, 1, 6);
     const postMaterial = new THREE.MeshStandardMaterial({ color: "silver" });
@@ -106,18 +116,25 @@ function createLampPost(scene) {
     post.position.z = 10;
     post.castShadow = true;
     post.receiveShadow = true;
-    
-    // Create the light at the top of the post.
-    const postLight = new THREE.PointLight(0xffffff, 1.0);
-    light.position.y = 10;
-    light.position.z = 10;
-    light.castShadow = true;
 
-    // Create a group and add the post and light to it.
+    // Create the lamp shade at the top of the post
+    const shadeGeometry = new THREE.TorusGeometry(0.2, 0.10, 16, 100);
+    const shadeMaterial = new THREE.MeshStandardMaterial({ color: "yellow", side: THREE.DoubleSide }); // Change the color here
+    const shade = new THREE.Mesh(shadeGeometry, shadeMaterial);
+    shade.position.y = 6.2; // Position the shade at the top of the post
+    shade.rotation.x = Math.PI / 2; // Rotate the shade to face upwards
+
+    // Create the light inside the lamp shade
+    const postLight = new THREE.PointLight(0xffffff, 1.0);
+    postLight.position.set(0, 6.2, 10); // Position the light inside the lamp shade
+    postLight.castShadow = true;
+
+    // Create a group and add the post, shade, and light to it
     const lampPost = new THREE.Group();
     lampPost.add(post);
-    lampPost.add(postLight);  
-    
+    lampPost.add(shade);
+    lampPost.add(postLight);
+
     scene.add(lampPost);
     return lampPost;
 }
@@ -187,7 +204,7 @@ function createRectangle(scene, cube, plane) {
 // Update the position of the rectangle
 function updateRectanglePosition(rectangle, cube) {
     const radius = 5;
-    const speed = .001;
+    const speed = .01;
     const angle = performance.now() * speed;
     rectangle.position.x = Math.cos(angle) * radius;
     rectangle.position.z = Math.sin(angle) * radius;
