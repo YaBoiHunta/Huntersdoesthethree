@@ -76,7 +76,7 @@ function createSkateboard(scene) {
     const wheelMaterial = new THREE.MeshStandardMaterial({ color: "green" });
     const wheel1 = new THREE.Mesh(wheelGeometry, wheelMaterial);
     wheel1.position.set(0.1, 0.05, -0.4); // Swapped the x and z positions
-    wheel1.rotation.x = Math.PI / 2; // Rotated the wheel 90 degrees around the x-axis
+    wheel1.rotation.z = Math.PI / 2; // Rotated the wheel 90 degrees around the x-axis
     wheel1.castShadow = true;
     wheel1.receiveShadow = true;
 
@@ -94,6 +94,7 @@ function createSkateboard(scene) {
     const truckMaterial = new THREE.MeshStandardMaterial({ color: "silver" });
     const truck1 = new THREE.Mesh(truckGeometry, truckMaterial);
     truck1.position.set(0, 0.1, -0.4); // Swapped the x and z positions
+    truck1.rotation.set(0, Math.PI / 2, 0); // Rotated the truck 90 degrees around the y-axis
     truck1.castShadow = true;
     truck1.receiveShadow = true;
 
@@ -112,6 +113,78 @@ function createSkateboard(scene) {
 
     scene.add(skateboard);
     return skateboard;
+}
+
+
+// Create the door mesh
+function createDoor(scene) {
+    // Create the door panels
+    const doorGeometry = new THREE.BoxGeometry(1, 2, 0.1);
+    const doorMaterial = new THREE.MeshStandardMaterial({ color: "gray" });
+
+    // Left door panel
+    const leftDoor = new THREE.Mesh(doorGeometry, doorMaterial);
+    leftDoor.position.set(-0.5, 1, 0);
+
+    // Right door panel
+    const rightDoor = new THREE.Mesh(doorGeometry, doorMaterial);
+    rightDoor.position.set(0.5, 1, 0);
+
+    // Rotate the door panels to crack open the door
+    leftDoor.rotation.y = -Math.PI / 4; // Rotate 45 degrees counter-clockwise
+    rightDoor.rotation.y = Math.PI / 4; // Rotate 45 degrees clockwise
+
+    // Create a group and add the door panels to it
+    const door = new THREE.Group();
+    door.add(leftDoor, rightDoor);
+
+    // Add the door to the scene
+    scene.add(door);
+    return door;
+}
+
+// Create the ground
+function createGround(scene) {
+    const groundGeometry = new THREE.PlaneGeometry(100, 100);
+    const groundMaterial = new THREE.MeshStandardMaterial({ color: 'gray' });
+    const ground = new THREE.Mesh(groundGeometry, groundMaterial);
+    ground.rotation.x = -Math.PI / 2; // Rotate the ground to be horizontal
+    scene.add(ground);
+    return ground;
+}
+
+// Create a bowl
+function createBowl(scene, position) {
+    const bowlGeometry = new THREE.CylinderGeometry(5, 5, 1, 32);
+    const bowlMaterial = new THREE.MeshStandardMaterial({ color: 'gray' });
+    const bowl = new THREE.Mesh(bowlGeometry, bowlMaterial);
+    bowl.position.set(position.x, position.y, position.z); // Adjust position as needed
+    scene.add(bowl);
+    return bowl;
+}
+
+// Create a ramp
+function createRamp(scene, position) {
+    const rampGeometry = new THREE.BoxGeometry(1, 0.1, 5);
+    const rampMaterial = new THREE.MeshStandardMaterial({ color: 'gray' });
+    const ramp = new THREE.Mesh(rampGeometry, rampMaterial);
+    ramp.position.set(position.x, position.y, position.z); // Adjust position as needed
+    scene.add(ramp);
+    return ramp;
+}
+
+// Create a lamp
+function createLamp(scene, position) {
+    const lampPostGeometry = new THREE.CylinderGeometry(0.1, 0.1, 2, 32);
+    const lampPostMaterial = new THREE.MeshStandardMaterial({ color: 'gray' });
+    const lampPost = new THREE.Mesh(lampPostGeometry, lampPostMaterial);
+    lampPost.position.set(position.x, position.y, position.z); // Adjust position as needed
+
+    const light = new THREE.PointLight(0xffffff, 1, 100);
+    light.position.set(position.x, position.y + 2, position.z); // Position the light at the top of the lamp post
+
+    scene.add(lampPost, light);
+    return { lampPost, light };
 }
 
 // Update the direction based on the arrow keys
@@ -166,6 +239,8 @@ function init() {
     const skateboard = createSkateboard(scene);
     createPlane(scene);
     setupLights(scene);
+    createDoor(scene);
+    
 
     // Add event listeners for keydown and keyup events
     window.addEventListener('keydown', handleKeyDown, false);
