@@ -3,15 +3,7 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { Tween } from '@tweenjs/tween.js';
 
-const loader = new THREE.CubeTextureLoader();
-const texture = loader.load([
-    'right.png', // right
-    'left.png', // left
-    'top.png', // top
-    'bottom.png', // bottom
-    'front.png', // front
-    'back.png' // back
-]);
+
 
 
 // Set up the scene
@@ -22,9 +14,19 @@ function setupScene() {
 
 // Set up the camera
 function setupCamera() {
-    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    let camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
     camera.position.z = 10;
     camera.position.y = 5;
+    return camera;
+} 
+
+// Set up the second camera
+function setupSecondCamera() {
+    let camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    camera.position.z = 10;
+    camera.position.y = 10;
+    camera.position.x = 10; // Change the position to look at the scene from a different angle
+ // Make the camera look at the center of the scene
     return camera;
 }
 
@@ -179,7 +181,7 @@ function createGem(scene) {
 
 // Create the plane mesh
 function createPlane(scene) {
-    const planeGeometry = new THREE.PlaneGeometry(20, 20);
+    const planeGeometry = new THREE.PlaneGeometry(50, 50);
     const planeMaterial = new THREE.MeshStandardMaterial({ color: "gray", side: THREE.DoubleSide });
     const plane = new THREE.Mesh(planeGeometry, planeMaterial);
     plane.rotation.x = Math.PI / 2;
@@ -213,7 +215,7 @@ function updateRectanglePosition(rectangle, cube) {
 
 // Set up the scene, camera, renderer, controls, light, cube, plane, and rectangle and other objects in the scene
 const scene = setupScene();
-const camera = setupCamera();
+let camera = setupCamera();
 const renderer = setupRenderer();
 const controls = setupControls(camera, renderer);
 const light = setupLight(scene);
@@ -228,15 +230,35 @@ const skateboard2 = createSkateboard(scene);
 skateboard2.position.set(3, .5, 2);
 const skateboard3 = createSkateboard(scene);
 skateboard3.position.set(1, .5, 4);
-
+let secondCamera = setupSecondCamera();
 const lampPost = createLampPost(scene);
 
 
 
 
-// Handle the mouse click event
+// Create a raycaster and a mouse vector
+const raycaster = new THREE.Raycaster();
+const mouse = new THREE.Vector2();
+
+// In the click event handler
 window.addEventListener('click', (event) => {
-    onMouseClick(event, camera, cube);
+    // Update the mouse vector with the mouse's normalized device coordinates (-1 to +1)
+    mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+    mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+    // Update the raycaster's ray with the camera and mouse position
+    raycaster.setFromCamera(mouse, camera);
+
+    // Calculate objects intersecting the raycaster's ray
+    const intersects = raycaster.intersectObjects(scene.children, true);
+
+    // Check if any of the skateboards is among the intersected objects
+    for (let i = 0; i < intersects.length; i++) {
+        if (intersects[i].object.parent === skateboard1 || intersects[i].object.parent === skateboard2 || intersects[i].object.parent === skateboard3) {
+            // Switch to the second camera
+            camera = secondCamera;
+        }
+    }
 }, false);
 
 // Render the scene and update the position of the rectangle
