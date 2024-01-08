@@ -3,9 +3,6 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { Tween } from '@tweenjs/tween.js';
 
-
-
-
 // Set up the scene
 function setupScene() {
     const scene = new THREE.Scene();
@@ -23,11 +20,13 @@ function setupCamera() {
 // Set up the second camera
 function setupSecondCamera() {
     let camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-    camera.position.z = 5;
-    camera.position.y = 5;
+    camera.position.z = 0;
+    camera.position.y = 1;
     camera.position.x = 5; // Change the position to look at the scene from a different angle
     // look at the cube from what would the the right side of it.
-    camera.lookAt(cube.position); // Look at the cube
+    // Rotate the camera
+    camera.rotation.y = Math.PI / 2;
+
     
     return camera;
 }
@@ -42,8 +41,12 @@ function setupRenderer() {
 }
 
 // Set up the controls
-function setupControls(camera, renderer) {
-    const controls = new OrbitControls(camera, renderer.domElement);
+function setupControls(camera, renderer, controls, enabled) {
+    if (controls) {
+        controls.dispose(); // Dispose of the old controls
+    }
+    controls = new OrbitControls(camera, renderer.domElement);
+    controls.enabled = enabled;
     return controls;
 }
 
@@ -55,6 +58,7 @@ function setupLight(scene) {
     scene.add(light);
     return light;
 }
+
 
 
 // Create the skateboard mesh
@@ -136,21 +140,31 @@ function createPlane(scene) {
 }
 
 // Set up the scene, camera, renderer, controls, light, cube, plane, and rectangle and other objects in the scene
+// Assuming controls is an instance of THREE.OrbitControls
+
+
 const scene = setupScene();
 let camera = setupCamera();
 const renderer = setupRenderer();
 const controls = setupControls(camera, renderer);
-const light = setupLight(scene);
+const light1 = setupLight(scene);
+const light2 = setupLight(scene);
+light2.position.set(3, 5, -5);
 const cube = createCube(scene);
 const plane = createPlane(scene);
 const skateboard1 = createSkateboard(scene, "Red", "Green");
 const skateboard2 = createSkateboard(scene, "Blue", "Yellow");
 const skateboard3 = createSkateboard(scene, "Purple", "Orange");
 skateboard1.position.set(-.5, .5, 1.5);
+skateboard2.position.x = cube.position.x + 1.2;
+skateboard2.rotation.z = Math.PI / 2;
+skateboard2.position.y = 1.5;
+skateboard2.position.z = -.9; // Position of the first skateboard on the z-axis
 
-skateboard2.position.set(1, .5, 2);
-
-skateboard3.position.set(1, .5, 1);
+skateboard3.position.x = cube.position.x + 1.2;
+skateboard3.rotation.z = Math.PI /2;
+skateboard3.position.y = 1.5;
+skateboard3.position.z = .9; // Position of the second skateboard on the z-axis
 let secondCamera = setupSecondCamera();
 // Create a raycaster and a mouse vector
 const raycaster = new THREE.Raycaster();
@@ -168,13 +182,22 @@ window.addEventListener('click', (event) => {
     // Calculate objects intersecting the raycaster's ray
     const intersects = raycaster.intersectObjects(scene.children, true);
 
-    // Check if any of the skateboards is among the intersected objects
-    for (let i = 0; i < intersects.length; i++) {
-        if (intersects[i].object.parent === skateboard1 || intersects[i].object.parent === skateboard2 || intersects[i].object.parent === skateboard3) {
-            // Switch to the second camera
-            camera = secondCamera;
-        }
+   // Check if any of the skateboards is among the intersected objects
+   for (let i = 0; i < intersects.length; i++) {
+    let enabled;
+    if (intersects[i].object.parent === skateboard1 || intersects[i].object.parent === skateboard2) {
+        // Switch to the second camera
+        camera = secondCamera;
+        enabled = false;
+    } else if (intersects[i].object.parent === skateboard3) {
+        // Switch back to the first camera
+        camera = setupCamera();
+        enabled = true;
     }
+
+    // Update the controls with the new camera
+    controls = setupControls(camera, renderer, controls, enabled);
+}
 }, false);
 
 // Render the scene and update the position of the rectangle
