@@ -143,15 +143,7 @@ function createDoor(scene) {
     return door;
 }
 
-// Create the ground
-function createGround(scene) {
-    const groundGeometry = new THREE.PlaneGeometry(100, 100);
-    const groundMaterial = new THREE.MeshStandardMaterial({ color: 'gray' });
-    const ground = new THREE.Mesh(groundGeometry, groundMaterial);
-    ground.rotation.x = -Math.PI / 2; // Rotate the ground to be horizontal
-    scene.add(ground);
-    return ground;
-}
+
 
 // Create a bowl
 function createBowl(scene, position) {
@@ -165,10 +157,11 @@ function createBowl(scene, position) {
 
 // Create a ramp
 function createRamp(scene, position) {
-    const rampGeometry = new THREE.BoxGeometry(1, 0.1, 5);
-    const rampMaterial = new THREE.MeshStandardMaterial({ color: 'gray' });
+    const rampGeometry = new THREE.PlaneGeometry(5, 5); // Create a flat surface
+    const rampMaterial = new THREE.MeshStandardMaterial({ color: 'gray', side: THREE.DoubleSide });
     const ramp = new THREE.Mesh(rampGeometry, rampMaterial);
-    ramp.position.set(position.x, position.y, position.z); // Adjust position as needed
+    ramp.rotation.x = Math.PI / 4; // Rotate the ramp to create a slope
+    ramp.position.set // Adjust position as needed
     scene.add(ramp);
     return ramp;
 }
@@ -237,10 +230,11 @@ function init() {
     const camera = setupCamera();
     const controls = setupControls(camera, renderer);
     const skateboard = createSkateboard(scene);
+    const ramp = createRamp(scene, { x: 5, y: 1, z: 10 });
     createPlane(scene);
     setupLights(scene);
     createDoor(scene);
-    
+    createRamp(scene);
 
     // Add event listeners for keydown and keyup events
     window.addEventListener('keydown', handleKeyDown, false);
