@@ -23,10 +23,12 @@ function setupCamera() {
 // Set up the second camera
 function setupSecondCamera() {
     let camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-    camera.position.z = 10;
-    camera.position.y = 10;
-    camera.position.x = 10; // Change the position to look at the scene from a different angle
- // Make the camera look at the center of the scene
+    camera.position.z = 5;
+    camera.position.y = 5;
+    camera.position.x = 5; // Change the position to look at the scene from a different angle
+    // look at the cube from what would the the right side of it.
+    camera.lookAt(cube.position); // Look at the cube
+    
     return camera;
 }
 
@@ -144,11 +146,11 @@ const plane = createPlane(scene);
 const skateboard1 = createSkateboard(scene, "Red", "Green");
 const skateboard2 = createSkateboard(scene, "Blue", "Yellow");
 const skateboard3 = createSkateboard(scene, "Purple", "Orange");
-skateboard1.position.set(-3, .5, 2);
+skateboard1.position.set(-.5, .5, 1.5);
 
-skateboard2.position.set(3, .5, 2);
+skateboard2.position.set(1, .5, 2);
 
-skateboard3.position.set(1, .5, 4);
+skateboard3.position.set(1, .5, 1);
 let secondCamera = setupSecondCamera();
 // Create a raycaster and a mouse vector
 const raycaster = new THREE.Raycaster();
