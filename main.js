@@ -142,11 +142,10 @@ function createPlane(scene) {
 // Set up the scene, camera, renderer, controls, light, cube, plane, and rectangle and other objects in the scene
 // Assuming controls is an instance of THREE.OrbitControls
 
-
 const scene = setupScene();
 let camera = setupCamera();
 const renderer = setupRenderer();
-const controls = setupControls(camera, renderer);
+let controls = setupControls(camera, renderer);
 const light1 = setupLight(scene);
 const light2 = setupLight(scene);
 light2.position.set(3, 5, -5);
@@ -182,21 +181,21 @@ window.addEventListener('click', (event) => {
     // Calculate objects intersecting the raycaster's ray
     const intersects = raycaster.intersectObjects(scene.children, true);
 
-   // Check if any of the skateboards is among the intersected objects
-   for (let i = 0; i < intersects.length; i++) {
-    let enabled;
+  // Check if any of the skateboards is among the intersected objects
+  for (let i = 0; i < intersects.length; i++) {
     if (intersects[i].object.parent === skateboard1 || intersects[i].object.parent === skateboard2) {
         // Switch to the second camera
         camera = secondCamera;
-        enabled = false;
+
+        // Disable the controls
+        controls.enabled = false;
     } else if (intersects[i].object.parent === skateboard3) {
         // Switch back to the first camera
         camera = setupCamera();
-        enabled = true;
-    }
 
-    // Update the controls with the new camera
-    controls = setupControls(camera, renderer, controls, enabled);
+        // Update the controls with the new camera and enable them
+        controls = setupControls(camera, renderer, controls, true);
+    }
 }
 }, false);
 
