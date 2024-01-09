@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
-import { Tween } from '@tweenjs/tween.js';
+import Tween from '@tweenjs/tween.js';
 import { FontLoader } from 'three/examples/jsm/loaders/FontLoader.js';
 
 // Set up the scene
@@ -78,50 +78,69 @@ function createText(font, textString, size, color) {
 
 // Create the skateboard mesh
 function createSkateboard(scene, boardColor, wheelColor) {
-    // Create the board
-    const boardGeometry = new THREE.BoxGeometry(1, 0.1, 0.3);
-    let boardMaterial = new THREE.MeshStandardMaterial({ color: boardColor });
-    const board = new THREE.Mesh(boardGeometry, boardMaterial);
-    board.position.y = 0.15;
-    board.castShadow = true;
-    board.receiveShadow = true;
-    // Create the wheels
-    const wheelGeometry = new THREE.CylinderGeometry(0.05, 0.05, 0.1, 32);
-    let wheelMaterial = new THREE.MeshStandardMaterial({ color: wheelColor });
-    const wheel1 = new THREE.Mesh(wheelGeometry, wheelMaterial);
-    wheel1.position.set(-0.4, 0.05, 0.1);
-    wheel1.rotation.y = Math.PI / 2;
-    wheel1.rotation.z = Math.PI / 2;
-    wheel1.castShadow = true;
-    wheel1.receiveShadow = true;
-    // wheel positions
-    const wheel2 = wheel1.clone();
-    wheel2.position.x = 0.4;
-    const wheel3 = wheel1.clone();
-    wheel3.position.z = -0.1;
-    const wheel4 = wheel2.clone();
-    wheel4.position.z = -0.1;
-    // Create the trucks
-    const truckGeometry = new THREE.BoxGeometry(0.02, 0.02, 0.2);
-    const truckMaterial = new THREE.MeshStandardMaterial({ color: "silver" });
-    const truck1 = new THREE.Mesh(truckGeometry, truckMaterial);
-    truck1.position.set(-0.4, 0.1, 0);
-    truck1.castShadow = true;
-    truck1.receiveShadow = true;
-    const truck2 = truck1.clone();
-    truck2.position.x = 0.4;
-    // Create a group and add the board, wheels, and trucks to it
+    const board = createBoard(boardColor);
+    const wheels = createWheels(wheelColor);
+    const trucks = createTrucks();
+
     const skateboard = new THREE.Group();
-    skateboard.add(board);
-    skateboard.add(wheel1);
-    skateboard.add(wheel2);
-    skateboard.add(wheel3);
-    skateboard.add(wheel4);
-    skateboard.add(truck1);
-    skateboard.add(truck2);
+    skateboard.add(board, ...wheels, ...trucks);
 
     scene.add(skateboard);
     return skateboard;
+}
+
+function createBoard(color) {
+    const geometry = new THREE.BoxGeometry(1, 0.1, 0.3);
+    const material = new THREE.MeshStandardMaterial({ color });
+    const board = new THREE.Mesh(geometry, material);
+    board.position.y = 0.15;
+    board.castShadow = true;
+    board.receiveShadow = true;
+    return board;
+}
+
+function createWheels(color) {
+    const wheelGeometry = new THREE.CylinderGeometry(0.05, 0.05, 0.1, 32);
+    const wheelMaterial = new THREE.MeshStandardMaterial({ color });
+
+    const wheelPositions = [
+        { x: -0.4, y: 0.05, z: 0.1 },
+        { x: 0.4, y: 0.05, z: 0.1 },
+        { x: -0.4, y: 0.05, z: -0.1 },
+        { x: 0.4, y: 0.05, z: -0.1 },
+    ];
+
+    const wheels = wheelPositions.map(position => {
+        const wheel = new THREE.Mesh(wheelGeometry, wheelMaterial);
+        wheel.position.set(position.x, position.y, position.z);
+        wheel.rotation.y = Math.PI / 2;
+        wheel.rotation.z = Math.PI / 2;
+        wheel.castShadow = true;
+        wheel.receiveShadow = true;
+        return wheel;
+    });
+    
+    return wheels;
+}
+
+function createTrucks() {
+    const truckGeometry = new THREE.BoxGeometry(0.02, 0.02, 0.2);
+    const truckMaterial = new THREE.MeshStandardMaterial({ color: "silver" });
+
+    const truckPositions = [
+        { x: -0.4, y: 0.1, z: 0 },
+        { x: 0.4, y: 0.1, z: 0 },
+    ];
+
+    const trucks = truckPositions.map(position => {
+        const truck = new THREE.Mesh(truckGeometry, truckMaterial);
+        truck.position.set(position.x, position.y, position.z);
+        truck.castShadow = true;
+        truck.receiveShadow = true;
+        return truck;
+    });
+
+    return trucks;
 }
 
 
@@ -219,7 +238,6 @@ loadFont('/node_modules/three/examples/fonts/helvetiker_regular.typeface.json')
         console.error('Error loading fontt:', error);
     });
 
-// In the click event handler
 window.addEventListener('click', (event) => {
     // Update the mouse vector with the mouse's normalized device coordinates (-1 to +1)
     mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
@@ -231,27 +249,45 @@ window.addEventListener('click', (event) => {
     // Calculate objects intersecting the raycaster's ray
     const intersects = raycaster.intersectObjects(scene.children, true);
 
-  // Check if any of the skateboards is among the intersected objects
-  for (let i = 0; i < intersects.length; i++) {
-    if (intersects[i].object.parent === skateboard1 || intersects[i].object.parent === skateboard2) {
-        // Switch to the second camera
-        camera = secondCamera;
+    // Check if any of the skateboards is among the intersected objects
+    for (let i = 0; i < intersects.length; i++) {
+        if (intersects[i].object.parent === skateboard1 || intersects[i].object.parent === skateboard2) {
+            // Create a tween that interpolates the position and rotation of the first camera to the position and rotation of the second camera
+            new Tween.Tween(camera.position)
+                .to(secondCamera.position, 2000) // 2000 ms = 2 seconds
+                .onUpdate(() => camera.lookAt(cube.position))
+                .start();
 
-        // Disable the controls
-        controls.enabled = false;
-    } else if (intersects[i].object.parent === skateboard3) {
-        // Switch back to the first camera
-        camera = setupCamera();
+            new Tween.Tween(camera.rotation)
+                .to({ x: secondCamera.rotation.x, y: secondCamera.rotation.y, z: secondCamera.rotation.z }, 2000)
+                .onUpdate(() => camera.lookAt(cube.position))
+                .start();
 
-        // Update the controls with the new camera and enable them
-        controls = setupControls(camera, renderer, controls, true);
+            // Disable the controls
+            controls.enabled = false;
+
+        } else if (intersects[i].object.parent === skateboard3) {
+            // Create a tween that interpolates the position and rotation of the second camera to the position and rotation of the first camera
+            new Tween.Tween(camera.position)
+                .to(setupCamera().position, 2000)
+                .onUpdate(() => camera.lookAt(cube.position))
+                .start();
+
+            new Tween.Tween(camera.rotation)
+                .to({ x: setupCamera().rotation.x, y: setupCamera().rotation.y, z: setupCamera().rotation.z }, 2000)
+                .onUpdate(() => camera.lookAt(cube.position))
+                .start();
+
+            // Update the controls with the new camera and enable them
+            controls = setupControls(camera, renderer, controls, true);
+        }
     }
-}
 }, false);
 
 // Render the scene and update the position of the rectangle
 function render() {
     requestAnimationFrame(render);
+    Tween.update();
     renderer.render(scene, camera);
 }
 
