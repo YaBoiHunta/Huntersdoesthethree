@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { Tween } from '@tweenjs/tween.js';
+import { FontLoader } from 'three/examples/jsm/loaders/FontLoader.js';
 
 // Set up the scene
 function setupScene() {
@@ -59,6 +60,20 @@ function setupLight(scene) {
     return light;
 }
 
+function loadFont(url) {
+    return new Promise((resolve, reject) => {
+        const loader = new FontLoader();
+        loader.load(url, resolve, undefined, reject);
+    });
+}
+
+function createText(font, textString, size, color) {
+    const shapes = font.generateShapes(textString, size);
+    const geometry = new THREE.ShapeGeometry(shapes);
+    const material = new THREE.MeshBasicMaterial({ color: color });
+    const text = new THREE.Mesh(geometry, material);
+    return text;
+}
 
 
 // Create the skateboard mesh
@@ -70,7 +85,6 @@ function createSkateboard(scene, boardColor, wheelColor) {
     board.position.y = 0.15;
     board.castShadow = true;
     board.receiveShadow = true;
-
     // Create the wheels
     const wheelGeometry = new THREE.CylinderGeometry(0.05, 0.05, 0.1, 32);
     let wheelMaterial = new THREE.MeshStandardMaterial({ color: wheelColor });
@@ -80,16 +94,13 @@ function createSkateboard(scene, boardColor, wheelColor) {
     wheel1.rotation.z = Math.PI / 2;
     wheel1.castShadow = true;
     wheel1.receiveShadow = true;
-
+    // wheel positions
     const wheel2 = wheel1.clone();
     wheel2.position.x = 0.4;
-
     const wheel3 = wheel1.clone();
     wheel3.position.z = -0.1;
-
     const wheel4 = wheel2.clone();
     wheel4.position.z = -0.1;
-
     // Create the trucks
     const truckGeometry = new THREE.BoxGeometry(0.02, 0.02, 0.2);
     const truckMaterial = new THREE.MeshStandardMaterial({ color: "silver" });
@@ -97,10 +108,8 @@ function createSkateboard(scene, boardColor, wheelColor) {
     truck1.position.set(-0.4, 0.1, 0);
     truck1.castShadow = true;
     truck1.receiveShadow = true;
-
     const truck2 = truck1.clone();
     truck2.position.x = 0.4;
-
     // Create a group and add the board, wheels, and trucks to it
     const skateboard = new THREE.Group();
     skateboard.add(board);
@@ -168,6 +177,28 @@ let secondCamera = setupSecondCamera();
 // Create a raycaster and a mouse vector
 const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
+
+loadFont('/node_modules/three/examples/fonts/helvetiker_regular.typeface.json')
+    .then(font => {
+        const text = createText(font, 'Project Text.', .3,'green');
+        text.position.set(-1.2, 2, 1);
+        scene.add(text);
+    })
+    .catch(error => {
+        console.error('Error loading fontt:', error);
+    });
+// Call the load font function, to then load the font and the text onto the scene using the createText function on line 63-76. 
+
+loadFont('/node_modules/three/examples/fonts/helvetiker_regular.typeface.json')
+    .then(font => {
+        const text = createText(font, 'Wasup Gamers', 0.4,'orange');
+        text.position.set(1.1, 2, 2);
+        text.rotation.y = Math.PI / 2;
+        scene.add(text);
+    })
+    .catch(error => {
+        console.error('Error loading fontt:', error);
+    });
 
 // In the click event handler
 window.addEventListener('click', (event) => {
