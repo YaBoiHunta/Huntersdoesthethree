@@ -150,33 +150,51 @@ function createPlane(scene) {
 
 // Set up the scene, camera, renderer, controls, light, cube, plane, and rectangle and other objects in the scene
 // Assuming controls is an instance of THREE.OrbitControls
-
+//scene setup
 const scene = setupScene();
+// camera setup
 let camera = setupCamera();
+// renderer setup
 const renderer = setupRenderer();
+// controls setup
 let controls = setupControls(camera, renderer);
+// light setup
 const light1 = setupLight(scene);
+// Second light setup
 const light2 = setupLight(scene);
 light2.position.set(3, 5, -5);
+// Create the cube by calling the create cube function.
 const cube = createCube(scene);
+// Create the plane by calling the create plane function.
 const plane = createPlane(scene);
+// Create the skateboard by calling the create skateboard function. Then add the colors of it to the skateboard in the scene.
 const skateboard1 = createSkateboard(scene, "Red", "Green");
 const skateboard2 = createSkateboard(scene, "Blue", "Yellow");
 const skateboard3 = createSkateboard(scene, "Purple", "Orange");
-skateboard1.position.set(-.5, .5, 1.5);
+// Position of the first skateboard on the z-axis
+skateboard1.position.set(-.5, .5, 3);
+// Position of the second skateboard the 3 axis's.
 skateboard2.position.x = cube.position.x + 1.2;
 skateboard2.rotation.z = Math.PI / 2;
 skateboard2.position.y = 1.5;
 skateboard2.position.z = -.9; // Position of the first skateboard on the z-axis
-
+// Position of the third skateboard the 3 axis's.
 skateboard3.position.x = cube.position.x + 1.2;
 skateboard3.rotation.z = Math.PI /2;
 skateboard3.position.y = 1.5;
 skateboard3.position.z = .9; // Position of the second skateboard on the z-axis
+// call the setupSecondCamera function to set up the second camera that will be used when the user clicks on the skateboard.
+
 let secondCamera = setupSecondCamera();
+
 // Create a raycaster and a mouse vector
+
 const raycaster = new THREE.Raycaster();
+// Create a mouse vector
+
 const mouse = new THREE.Vector2();
+
+// Load the font from its path. Then create the text and add it to the scene.
 
 loadFont('/node_modules/three/examples/fonts/helvetiker_regular.typeface.json')
     .then(font => {
@@ -187,6 +205,7 @@ loadFont('/node_modules/three/examples/fonts/helvetiker_regular.typeface.json')
     .catch(error => {
         console.error('Error loading fontt:', error);
     });
+    
 // Call the load font function, to then load the font and the text onto the scene using the createText function on line 63-76. 
 
 loadFont('/node_modules/three/examples/fonts/helvetiker_regular.typeface.json')
