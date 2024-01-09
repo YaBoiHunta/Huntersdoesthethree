@@ -262,6 +262,7 @@ window.addEventListener('click', (event) => {
                 .to({ x: secondCamera.rotation.x, y: secondCamera.rotation.y, z: secondCamera.rotation.z }, 2000)
                 .onUpdate(() => camera.lookAt(cube.position))
                 .start();
+                console.log('Camera roated to the right side of the cube.');
 
             // Disable the controls
             controls.enabled = false;
@@ -277,6 +278,8 @@ window.addEventListener('click', (event) => {
                 .to({ x: setupCamera().rotation.x, y: setupCamera().rotation.y, z: setupCamera().rotation.z }, 2000)
                 .onUpdate(() => camera.lookAt(cube.position))
                 .start();
+                console.log('Camera roated to the left side of the cube and the original camera position. Giving the control back to the user.');
+             
 
             // Update the controls with the new camera and enable them
             controls = setupControls(camera, renderer, controls, true);
