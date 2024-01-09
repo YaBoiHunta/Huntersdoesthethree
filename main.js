@@ -1,7 +1,8 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
-import { Tween } from '@tweenjs/tween.js';
+import Tween from '@tweenjs/tween.js';
+import { FontLoader } from 'three/examples/jsm/loaders/FontLoader.js';
 
 // Set up the scene
 function setupScene() {
@@ -11,8 +12,23 @@ function setupScene() {
 
 // Set up the camera
 function setupCamera() {
-    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    let camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
     camera.position.z = 10;
+    camera.position.y = 5;
+    return camera;
+} 
+
+// Set up the second camera
+function setupSecondCamera() {
+    let camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    camera.position.z = 0;
+    camera.position.y = 1;
+    camera.position.x = 5; // Change the position to look at the scene from a different angle
+    // look at the cube from what would the the right side of it.
+    // Rotate the camera
+    camera.rotation.y = Math.PI / 2;
+
+    
     return camera;
 }
 
@@ -26,19 +42,107 @@ function setupRenderer() {
 }
 
 // Set up the controls
-function setupControls(camera, renderer) {
-    const controls = new OrbitControls(camera, renderer.domElement);
+function setupControls(camera, renderer, controls, enabled) {
+    if (controls) {
+        controls.dispose(); // Dispose of the old controls
+    }
+    controls = new OrbitControls(camera, renderer.domElement);
+    controls.enabled = enabled;
     return controls;
 }
 
 // Set up the light
 function setupLight(scene) {
-    const light = new THREE.PointLight(0xffffff, 750.0); // To tell the computer that im using a HEX number, include that 0x in front of the color. 0xffffff is white. 1.0 is the intensity of the light.
+    const light = new THREE.PointLight(0xffffff, 100.0); // To tell the computer that im using a HEX number, include that 0x in front of the color. 0xffffff is white. 1.0 is the intensity of the light.
     light.position.set(1, 5, 5); // x, y, z position of the light.
     light.castShadow = true;
     scene.add(light);
     return light;
 }
+
+function loadFont(url) {
+    return new Promise((resolve, reject) => {
+        const loader = new FontLoader();
+        loader.load(url, resolve, undefined, reject);
+    });
+}
+
+function createText(font, textString, size, color) {
+    const shapes = font.generateShapes(textString, size);
+    const geometry = new THREE.ShapeGeometry(shapes);
+    const material = new THREE.MeshBasicMaterial({ color: color });
+    const text = new THREE.Mesh(geometry, material);
+    return text;
+}
+
+
+// Create the skateboard mesh
+function createSkateboard(scene, boardColor, wheelColor) {
+    const board = createBoard(boardColor);
+    const wheels = createWheels(wheelColor);
+    const trucks = createTrucks();
+
+    const skateboard = new THREE.Group();
+    skateboard.add(board, ...wheels, ...trucks);
+
+    scene.add(skateboard);
+    return skateboard;
+}
+
+function createBoard(color) {
+    const geometry = new THREE.BoxGeometry(1, 0.1, 0.3);
+    const material = new THREE.MeshStandardMaterial({ color });
+    const board = new THREE.Mesh(geometry, material);
+    board.position.y = 0.15;
+    board.castShadow = true;
+    board.receiveShadow = true;
+    return board;
+}
+
+function createWheels(color) {
+    const wheelGeometry = new THREE.CylinderGeometry(0.05, 0.05, 0.1, 32);
+    const wheelMaterial = new THREE.MeshStandardMaterial({ color });
+
+    const wheelPositions = [
+        { x: -0.4, y: 0.05, z: 0.1 },
+        { x: 0.4, y: 0.05, z: 0.1 },
+        { x: -0.4, y: 0.05, z: -0.1 },
+        { x: 0.4, y: 0.05, z: -0.1 },
+    ];
+
+    const wheels = wheelPositions.map(position => {
+        const wheel = new THREE.Mesh(wheelGeometry, wheelMaterial);
+        wheel.position.set(position.x, position.y, position.z);
+        wheel.rotation.y = Math.PI / 2;
+        wheel.rotation.z = Math.PI / 2;
+        wheel.castShadow = true;
+        wheel.receiveShadow = true;
+        return wheel;
+    });
+    
+    return wheels;
+}
+
+function createTrucks() {
+    const truckGeometry = new THREE.BoxGeometry(0.02, 0.02, 0.2);
+    const truckMaterial = new THREE.MeshStandardMaterial({ color: "silver" });
+
+    const truckPositions = [
+        { x: -0.4, y: 0.1, z: 0 },
+        { x: 0.4, y: 0.1, z: 0 },
+    ];
+
+    const trucks = truckPositions.map(position => {
+        const truck = new THREE.Mesh(truckGeometry, truckMaterial);
+        truck.position.set(position.x, position.y, position.z);
+        truck.castShadow = true;
+        truck.receiveShadow = true;
+        return truck;
+    });
+
+    return trucks;
+}
+
 
 // Create the cube mesh
 function createCube(scene) {
@@ -51,33 +155,10 @@ function createCube(scene) {
     scene.add(cube);
     return cube;
 }
-// Create the torus mesh
-function createTorus(scene) {
-    const geometry = new THREE.TorusGeometry(3, .16, 16, 100);
-    const material = new THREE.MeshStandardMaterial({ color: "blue" });
-    const torus = new THREE.Mesh(geometry, material);
-    torus.position.y = 2;
-    torus.castShadow = true;
-    torus.receiveShadow = true;
-    scene.add(torus);
-    return torus;
-}
-
-// Create the gem mesh
-function createGem(scene) {
-    const geometry = new THREE.OctahedronGeometry(1);
-    const material = new THREE.MeshStandardMaterial({ color: "cyan" });
-    const gem = new THREE.Mesh(geometry, material);
-    gem.position.y = 6; // Adjust this value to place the gem on top of the torus
-    gem.castShadow = true;
-    gem.receiveShadow = true;
-    scene.add(gem);
-    return gem;
-}
 
 // Create the plane mesh
 function createPlane(scene) {
-    const planeGeometry = new THREE.PlaneGeometry(20, 20);
+    const planeGeometry = new THREE.PlaneGeometry(50, 50);
     const planeMaterial = new THREE.MeshStandardMaterial({ color: "gray", side: THREE.DoubleSide });
     const plane = new THREE.Mesh(planeGeometry, planeMaterial);
     plane.rotation.x = Math.PI / 2;
@@ -86,67 +167,130 @@ function createPlane(scene) {
     return plane;
 }
 
-// Create the rectangle mesh
-function createRectangle(scene, cube, plane) {
-    const rectangleGeometry = new THREE.BoxGeometry(10, 1, 4);
-    const rectangleMaterial = new THREE.MeshStandardMaterial({ color: "purple" });
-    const rectangle = new THREE.Mesh(rectangleGeometry, rectangleMaterial);
-    rectangle.position.y = cube.position.y + 1 / 2;
-    rectangle.position.z = plane.position.z;
-    scene.add(rectangle);
-    return rectangle;
-}
+// Set up the scene, camera, renderer, controls, light, cube, plane, and rectangle and other objects in the scene
+// Assuming controls is an instance of THREE.OrbitControls
+//scene setup
+const scene = setupScene();
+// camera setup
+let camera = setupCamera();
+// renderer setup
+const renderer = setupRenderer();
+// controls setup
+let controls = setupControls(camera, renderer);
+// light setup
+const light1 = setupLight(scene);
+// Second light setup
+const light2 = setupLight(scene);
+light2.position.set(3, 5, -5);
+// Create the cube by calling the create cube function.
+const cube = createCube(scene);
+// Create the plane by calling the create plane function.
+const plane = createPlane(scene);
+// Create the skateboard by calling the create skateboard function. Then add the colors of it to the skateboard in the scene.
+const skateboard1 = createSkateboard(scene, "Red", "Green");
+const skateboard2 = createSkateboard(scene, "Blue", "Yellow");
+const skateboard3 = createSkateboard(scene, "Purple", "Orange");
+// Position of the first skateboard on the z-axis
+skateboard1.position.set(-.5, .5, 3);
+// Position of the second skateboard the 3 axis's.
+skateboard2.position.x = cube.position.x + 1.2;
+skateboard2.rotation.z = Math.PI / 2;
+skateboard2.position.y = 1.5;
+skateboard2.position.z = -.9; // Position of the first skateboard on the z-axis
+// Position of the third skateboard the 3 axis's.
+skateboard3.position.x = cube.position.x + 1.2;
+skateboard3.rotation.z = Math.PI /2;
+skateboard3.position.y = 1.5;
+skateboard3.position.z = .9; // Position of the second skateboard on the z-axis
+// call the setupSecondCamera function to set up the second camera that will be used when the user clicks on the skateboard.
 
-// Handle the mouse click event
-function onMouseClick(event, camera, cube) {
-    const mouse = new THREE.Vector2();
+let secondCamera = setupSecondCamera();
+
+// Create a raycaster and a mouse vector
+
+const raycaster = new THREE.Raycaster();
+// Create a mouse vector
+
+const mouse = new THREE.Vector2();
+
+// Load the font from its path. Then create the text and add it to the scene.
+
+loadFont('/node_modules/three/examples/fonts/helvetiker_regular.typeface.json')
+    .then(font => {
+        const text = createText(font, 'Project Text.', .3,'green');
+        text.position.set(-1.2, 2, 1);
+        scene.add(text);
+    })
+    .catch(error => {
+        console.error('Error loading fontt:', error);
+    });
+    
+// Call the load font function, to then load the font and the text onto the scene using the createText function on line 63-76. 
+
+loadFont('/node_modules/three/examples/fonts/helvetiker_regular.typeface.json')
+    .then(font => {
+        const text = createText(font, 'Wasup Gamers', 0.4,'orange');
+        text.position.set(1.1, 2, 2);
+        text.rotation.y = Math.PI / 2;
+        scene.add(text);
+    })
+    .catch(error => {
+        console.error('Error loading fontt:', error);
+    });
+
+window.addEventListener('click', (event) => {
+    // Update the mouse vector with the mouse's normalized device coordinates (-1 to +1)
     mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
     mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
-    const raycaster = new THREE.Raycaster();
+
+    // Update the raycaster's ray with the camera and mouse position
     raycaster.setFromCamera(mouse, camera);
-    const intersects = raycaster.intersectObjects(scene.children);
+
+    // Calculate objects intersecting the raycaster's ray
+    const intersects = raycaster.intersectObjects(scene.children, true);
+
+    // Check if any of the skateboards is among the intersected objects
     for (let i = 0; i < intersects.length; i++) {
-        if (intersects[i].object === cube) {
-            const newPosition = new THREE.Vector3(0, 0, 10);
-            new Tween(camera.position)
-                .to(newPosition, 2000)
-                .easing(TWEEN.Easing.Quadratic.Out)
+        if (intersects[i].object.parent === skateboard1 || intersects[i].object.parent === skateboard2) {
+            // Create a tween that interpolates the position and rotation of the first camera to the position and rotation of the second camera
+            new Tween.Tween(camera.position)
+                .to(secondCamera.position, 2000) // 2000 ms = 2 seconds
+                .onUpdate(() => camera.lookAt(cube.position))
                 .start();
+
+            new Tween.Tween(camera.rotation)
+                .to({ x: secondCamera.rotation.x, y: secondCamera.rotation.y, z: secondCamera.rotation.z }, 2000)
+                .onUpdate(() => camera.lookAt(cube.position))
+                .start();
+                console.log('Camera roated to the right side of the cube.');
+
+            // Disable the controls
+            controls.enabled = false;
+
+        } else if (intersects[i].object.parent === skateboard3) {
+            // Create a tween that interpolates the position and rotation of the second camera to the position and rotation of the first camera
+            new Tween.Tween(camera.position)
+                .to(setupCamera().position, 2000)
+                .onUpdate(() => camera.lookAt(cube.position))
+                .start();
+
+            new Tween.Tween(camera.rotation)
+                .to({ x: setupCamera().rotation.x, y: setupCamera().rotation.y, z: setupCamera().rotation.z }, 2000)
+                .onUpdate(() => camera.lookAt(cube.position))
+                .start();
+                console.log('Camera roated to the left side of the cube and the original camera position. Giving the control back to the user.');
+             
+
+            // Update the controls with the new camera and enable them
+            controls = setupControls(camera, renderer, controls, true);
         }
     }
-}
-
-// Update the position of the rectangle
-function updateRectanglePosition(rectangle, cube) {
-    const radius = 5;
-    const speed = 0.001;
-    const angle = performance.now() * speed;
-    rectangle.position.x = Math.cos(angle) * radius;
-    rectangle.position.z = Math.sin(angle) * radius;
-    rectangle.lookAt(cube.position);
-}
-
-// Set up the scene, camera, renderer, controls, light, cube, plane, and rectangle
-const scene = setupScene();
-const camera = setupCamera();
-const renderer = setupRenderer();
-const controls = setupControls(camera, renderer);
-const light = setupLight(scene);
-const cube = createCube(scene);
-const plane = createPlane(scene);
-const rectangle = createRectangle(scene, cube, plane);
-const torus = createTorus(scene);
-const gem = createGem(scene);
-
-// Handle the mouse click event
-window.addEventListener('click', (event) => {
-    onMouseClick(event, camera, cube);
 }, false);
 
 // Render the scene and update the position of the rectangle
 function render() {
     requestAnimationFrame(render);
-    updateRectanglePosition(rectangle, cube);
+    Tween.update();
     renderer.render(scene, camera);
 }
 
