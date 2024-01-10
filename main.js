@@ -1,6 +1,5 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import Tween from '@tweenjs/tween.js';
 import { FontLoader } from 'three/examples/jsm/loaders/FontLoader.js';
 
@@ -204,20 +203,11 @@ const skateboard4 = createSkateboard(scene, "Black", "White");
 // Position of the first skateboard on the z-axis
 skateboard1.position.set(-.5, .5, 3);
 // Position of the second skateboard the 3 axis's.
-skateboard2.position.x = cube.position.x + 1.2;
-skateboard2.rotation.z = Math.PI / 2;
-skateboard2.position.y = 1.5;
-skateboard2.position.z = -.9; // Position of the first skateboard on the z-axis
+skateboard2.position.set(cube.position.x + 1.2, 1.5, -.9); skateboard2.rotation.z = Math.PI / 2;
 // Position of the third skateboard the 3 axis's.
-skateboard3.position.x = cube.position.x + 1.2;
-skateboard3.rotation.z = Math.PI /2;
-skateboard3.position.y = 1.5;
-skateboard3.position.z = .9; // Position of the second skateboard on the z-axis
+skateboard3.position.set(cube.position.x + 1.2, 1.5, .9); skateboard3.rotation.z = Math.PI / 2;// Position of the second skateboard on the z-axis 
 // Position of the fourth skateboard on the z-axis
-skateboard4.position.x = cube.position.x - 1.2;
-skateboard4.rotation.z = Math.PI / -2;
-skateboard4.position.y = 1.4;
-
+skateboard4.position.set(cube.position.x - 1.2, 1.4, 0); skateboard4.rotation.z = Math.PI / -2;
 
 // call the setupSecondCamera function to set up the second camera that will be used when the user clicks on the skateboard.
 
@@ -256,7 +246,7 @@ loadAndCreateText(
     'Project Text.',
     0.3,
     'green',
-    [-1.2, 2, 1]
+    [-1.3, 2, 1]
 );
 
 loadAndCreateText(
