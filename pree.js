@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import Tween from '@tweenjs/tween.js';
 import { FontLoader } from 'three/examples/jsm/loaders/FontLoader.js';
 
@@ -41,17 +42,6 @@ function setupThirdCamera() {
     return camera;
 }
 
-function setupFourthCamera() {
-    let camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-    camera.position.z = 0;
-    camera.position.y = 1; // Height of the Camera.
-    camera.position.x = 8; // Change the position to look at the scene from a different angle
-    // look at the cube from what would the the right side of it.
-    // Rotate the camera
-    camera.rotation.y = Math.PI / 2;
-    return camera;
-}
-
 // Set up the renderer
 function setupRenderer() {
     const renderer = new THREE.WebGLRenderer();
@@ -87,7 +77,7 @@ function loadFont(url) {
     });
 }
 
-function createText(font, textString, size, color) {
+function createText(font, textString, size, color){
     const shapes = font.generateShapes(textString, size);
     const geometry = new THREE.ShapeGeometry(shapes);
     const material = new THREE.MeshBasicMaterial({ color: color });
@@ -178,7 +168,7 @@ function createCube(scene) {
 
 // Create the plane mesh
 function createPlane(scene) {
-    const planeGeometry = new THREE.PlaneGeometry(59, 59);
+    const planeGeometry = new THREE.PlaneGeometry(50, 50);
     const planeMaterial = new THREE.MeshStandardMaterial({ color: "gray", side: THREE.DoubleSide });
     const plane = new THREE.Mesh(planeGeometry, planeMaterial);
     plane.rotation.x = Math.PI / 2;
@@ -187,109 +177,7 @@ function createPlane(scene) {
     return plane;
 }
 
-// Create the post mesh
-function createPost(scene) {
-    const geometry = new THREE.BoxGeometry(0.2, 5, 0.2);
-    const material = new THREE.MeshStandardMaterial({ color: "brown" });
-    const post = new THREE.Mesh(geometry, material);
-    post.position.y = 2.5; // Adjust this to position the post correctly
-    post.position.x = -15;
-    post.castShadow = true;
-    post.receiveShadow = true;
-    scene.add(post);
-    return post;
-}
-
-// Create the sign mesh
-function createSign(scene, post) {
-    const geometry = new THREE.BoxGeometry(2, 1, 0.1);
-    const material = new THREE.MeshStandardMaterial({ color: "white" });
-    const sign = new THREE.Mesh(geometry, material);
-    sign.position.y = 4; // Adjust this to position the sign correctly
-    sign.position.x = post.position.x;
-    sign.position.z = post.position.z;
-    sign.castShadow = true;
-    sign.receiveShadow = true;
-    scene.add(sign);
-    return sign;
-}
-
-function createShelf() {
-    // Create a group to hold the parts of the shelf
-    const shelfGroup = new THREE.Group();
-
-    // Create a box geometry for the shelves
-    const shelfGeometry = new THREE.BoxGeometry(1, 0.1, 0.5);
-
-    // Create a mesh material for the shelves
-    const shelfMaterial = new THREE.MeshStandardMaterial({ color: 0x8B4513 });
-
-    // Create and position the shelves
-    for (let i = 0; i < 3; i++) {
-        const shelf = new THREE.Mesh(shelfGeometry, shelfMaterial);
-        shelf.position.y = i * 1.2 - 1; // Adjust this to position the shelves correctly
-        shelf.castShadow = true;
-        shelf.receiveShadow = true;
-        shelfGroup.add(shelf);
-    }
-
-    // Create a box geometry for the sides
-    const sideGeometry = new THREE.BoxGeometry(0.1, 3, 0.5);
-
-    // Create and position the sides
-    for (let i = 0; i < 2; i++) {
-        const side = new THREE.Mesh(sideGeometry, shelfMaterial);
-        side.position.x = i * 1 - 0.5; // Adjust this to position the sides correctly
-        side.castShadow = true;
-        side.receiveShadow  = true;
-        shelfGroup.add(side);
-    }
-
-    return shelfGroup;
-}
-
-function createLampPost() {
-    // Create a group to hold the parts of the lamp post
-    const lampPostGroup = new THREE.Group();
-
-    // Create a cylinder geometry for the post
-    const postGeometry = new THREE.CylinderGeometry(0.1, 0.1, 3, 32);
-
-    // Create a mesh material for the post
-    const postMaterial = new THREE.MeshStandardMaterial({ color: 0x8B4513 });
-
-    // Create and position the post
-    const post = new THREE.Mesh(postGeometry, postMaterial);
-    post.castShadow = true; // Enable casting shadows
-    post.receiveShadow = true; // Enable receiving shadows
-    lampPostGroup.add(post);
-
-    // Create a sphere geometry for the light
-    const lightGeometry = new THREE.SphereGeometry(0.5, 32, 32);
-
-    // Create a mesh material for the light
-    const lightMaterial = new THREE.MeshToonMaterial({ color: 0xFFFF00, transparent: true, opacity: 1 });
-    // Create and position the light sphere
-    const lightSphere = new THREE.Mesh(lightGeometry, lightMaterial);
-    lightSphere.position.y = 1.5; // Adjust this to position the light sphere correctly
-    lightSphere.castShadow = false; // Enable casting shadows
-    lightSphere.receiveShadow = false; // Enable receiving shadows
-    lampPostGroup.add(lightSphere);
-
-    // Create a point light
-    const pointLight = new THREE.PointLight(0xFFFF00, 50, 32);
-    pointLight.position.set(0, 1.5, 0); // Position the light at the same position as the light sphere
-    pointLight.castShadow = false; // Enable casting shadows
-    lampPostGroup.add(pointLight);
-
-    return lampPostGroup;
-}
-
-
-
-
-// Set up the scene, camera, renderer, controls, light, cube, plane, and rectangle and other objects in the scene here.
-// MAKE SURE TO ADD AFTER THE SCENE IS SETUP.
+// Set up the scene, camera, renderer, controls, light, cube, plane, and rectangle and other objects in the scene
 // Assuming controls is an instance of THREE.OrbitControls
 //scene setup
 const scene = setupScene();
@@ -313,15 +201,13 @@ const skateboard1 = createSkateboard(scene, "Red", "Green");
 const skateboard2 = createSkateboard(scene, "Blue", "Yellow");
 const skateboard3 = createSkateboard(scene, "Purple", "Orange");
 const skateboard4 = createSkateboard(scene, "Black", "White");
-// Create the signpost
-const post = createPost(scene);
-const sign = createSign(scene, post);
 // Position of the first skateboard on the z-axis
 skateboard1.position.set(-.5, .5, 3);
 // Position of the second skateboard the 3 axis's.
 skateboard2.position.set(cube.position.x + 1.2, 1.5, -.9); skateboard2.rotation.z = Math.PI / 2;
 // Position of the third skateboard the 3 axis's.
-skateboard3.position.set(cube.position.x + 1.2, 1.5, .9); skateboard3.rotation.z = Math.PI / 2;// Position of the second skateboard on the z-axis 
+skateboard3.position.set(cube.position.x + 1.2, 1.5, .9); skateboard3.rotation.z = Math.PI / 2
+;// Position of the second skateboard on the z-axis 
 // Position of the fourth skateboard on the z-axis
 skateboard4.position.set(cube.position.x - 1.2, 1.4, 0); skateboard4.rotation.z = Math.PI / -2;
 
@@ -338,14 +224,7 @@ const raycaster = new THREE.Raycaster();
 // Create a mouse vector
 
 const mouse = new THREE.Vector2();
-// Call the shelf function to create the shelf, position it, and then add it to the scene for it to show up.
-const shelf = createShelf();
-shelf.position.set(-10, 1.5, -10);
-scene.add(shelf);
 
-const lampPost = createLampPost();
-lampPost.position.set(10, 1.5, -10);
-scene.add(lampPost);
 // Load the font from its path. Then create the text and add it to the scene.
 
 function loadAndCreateText(fontPath, textString, size, color, position, rotationY) {
@@ -362,8 +241,6 @@ function loadAndCreateText(fontPath, textString, size, color, position, rotation
             console.error('Error loading font:', error);
         });
 }
-
-
 
 // Now you can create text with a single function call
 loadAndCreateText(
@@ -391,7 +268,6 @@ loadAndCreateText(
     [-1, 2, -2],
     -Math.PI / 2
 );
-
 
 // This is the function that will be called when the user clicks on the skateboard.
 
