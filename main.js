@@ -193,7 +193,7 @@ function createPost(scene) {
     const material = new THREE.MeshStandardMaterial({ color: "brown" });
     const post = new THREE.Mesh(geometry, material);
     post.position.y = 2.5; // Adjust this to position the post correctly
-    post.position.x = -5;
+    post.position.x = -15;
     post.castShadow = true;
     post.receiveShadow = true;
     scene.add(post);
@@ -248,8 +248,42 @@ function createShelf() {
     return shelfGroup;
 }
 
+function createLampPost() {
+    // Create a group to hold the parts of the lamp post
+    const lampPostGroup = new THREE.Group();
 
+    // Create a cylinder geometry for the post
+    const postGeometry = new THREE.CylinderGeometry(0.1, 0.1, 3, 32);
 
+    // Create a mesh material for the post
+    const postMaterial = new THREE.MeshStandardMaterial({ color: 0x8B4513 });
+
+    // Create and position the post
+    const post = new THREE.Mesh(postGeometry, postMaterial);
+    post.castShadow = true; // Enable casting shadows
+    post.receiveShadow = true; // Enable receiving shadows
+    lampPostGroup.add(post);
+
+    // Create a sphere geometry for the light
+    const lightGeometry = new THREE.SphereGeometry(0.5, 32, 32);
+
+    // Create a mesh material for the light
+    const lightMaterial = new THREE.MeshToonMaterial({ color: 0xFFFF00, transparent: true, opacity: 1 });
+    // Create and position the light sphere
+    const lightSphere = new THREE.Mesh(lightGeometry, lightMaterial);
+    lightSphere.position.y = 1.5; // Adjust this to position the light sphere correctly
+    lightSphere.castShadow = false; // Enable casting shadows
+    lightSphere.receiveShadow = false; // Enable receiving shadows
+    lampPostGroup.add(lightSphere);
+
+    // Create a point light
+    const pointLight = new THREE.PointLight(0xFFFF00, 50, 32);
+    pointLight.position.set(0, 1.5, 0); // Position the light at the same position as the light sphere
+    pointLight.castShadow = false; // Enable casting shadows
+    lampPostGroup.add(pointLight);
+
+    return lampPostGroup;
+}
 
 
 
@@ -304,11 +338,14 @@ const raycaster = new THREE.Raycaster();
 // Create a mouse vector
 
 const mouse = new THREE.Vector2();
-// Usage:
+// Call the shelf function to create the shelf, position it, and then add it to the scene for it to show up.
 const shelf = createShelf();
-shelf.position.set(5, 1.6, 5);
+shelf.position.set(-10, 1.5, -10);
 scene.add(shelf);
 
+const lampPost = createLampPost();
+lampPost.position.set(10, 1.5, -10);
+scene.add(lampPost);
 // Load the font from its path. Then create the text and add it to the scene.
 
 function loadAndCreateText(fontPath, textString, size, color, position, rotationY) {
@@ -326,12 +363,7 @@ function loadAndCreateText(fontPath, textString, size, color, position, rotation
         });
 }
 
-function attachTextToSignpost(textMesh, signpostMesh) {
-    // Position the text relative to the signpost
-    textMesh.position.set(0, 1, 0); // Adjust this to position the text correctly
-    // Add the text to the signpost
-    signpostMesh.add(textMesh);
-}
+
 
 // Now you can create text with a single function call
 loadAndCreateText(
