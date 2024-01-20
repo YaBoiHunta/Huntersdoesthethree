@@ -260,6 +260,7 @@ function createLampPost(lightColor) {
 
 
 
+
 // Set up the scene, camera, renderer, controls, light, cube, plane, and other objects in the scene here.
 // MAKE SURE TO ADD AFTER THE SCENE IS SETUP.
 
@@ -278,6 +279,7 @@ const controls = setupControls(camera, renderer);
 // Light setup
 const light1 = setupLight(scene);
 const light2 = setupLight(scene);
+light1.position.set(2, 5, 5);
 light2.position.set(-2, 5, -5);
 
 // Create the cube
@@ -303,7 +305,7 @@ skateboard2.position.set(cube.position.x + 1.2, 1.5, -0.9);
 skateboard2.rotation.z = Math.PI / 2;
 skateboard3.position.set(cube.position.x + 1.2, 1.5, 0.9);
 skateboard3.rotation.z = Math.PI / 2;
-skateboard4.position.set(cube.position.x - 1.2, 1.4, 0);
+skateboard4.position.set(cube.position.x - 1.2, 1.4, -.9);
 skateboard4.rotation.z = Math.PI / -2;
 
 skateboard5.position.set(cube.position.x - 1.2, 1.4, .9);
@@ -311,7 +313,7 @@ skateboard5.rotation.z = Math.PI / -2;
 
 // Setup the 6th skateboard on the shelf
 skateboard6.position.set(-10, 1.5, -10);
-skateboard6.rotation.x = Math.PI / 2;
+skateboard6.rotation.x = Math.PI / 6;
 
 // Set up the second camera
 const secondCamera = setupSecondCamera();
@@ -329,16 +331,27 @@ const mouse = new THREE.Vector2();
 const shelf = createShelf();
 shelf.position.set(-10, 1.5, -10);
 scene.add(shelf);
-
+// Create the colored lamp post variables.
 const redLampPost = createLampPost(0xFF0000);
 const blueLampPost = createLampPost(0x0000FF);
 const greenLampPost = createLampPost(0x00FF00);
 const yellowLampPost = createLampPost(0xFFFF00);
-scene.add(redLampPost, blueLampPost, greenLampPost, yellowLampPost);
+const orangeLampPost = createLampPost(0xC04000);
+const purpleLampPost = createLampPost(0x800080);
+
+// The add them to the scene. And then place them in the correct positions.
+scene.add(redLampPost, blueLampPost, greenLampPost, yellowLampPost, orangeLampPost, purpleLampPost);
 redLampPost.position.set(20, 1.5, -10);
 blueLampPost.position.set(20, 1.5, 10);
 greenLampPost.position.set(-20, 1.5, 10);
 yellowLampPost.position.set(-20, 1.5, -10);
+orangeLampPost.position.set(0, 1.5, 20);
+purpleLampPost.position.set(0, 1.5, -20);
+
+
+
+
+
 
 
 function loadAndCreateText(fontPath, textString, size, color, position, rotationY) {
@@ -361,28 +374,38 @@ function loadAndCreateText(fontPath, textString, size, color, position, rotation
 // Now you can create text with a single function call
 loadAndCreateText(
     '/node_modules/three/examples/fonts/helvetiker_regular.typeface.json',
-    'Project Text.',
-    0.3,
-    'green',
-    [-1.3, 2, 1]
+    'Project Text.',// This is where you put the text strings.
+    0.3,// Text size here.
+    'green', // Color goes here.
+    [-1.3, 2, 1] // This is then where the text is placed.
 );
 
 loadAndCreateText(
     '/node_modules/three/examples/fonts/helvetiker_regular.typeface.json',
-    'Wasup Gamers',
-    0.4,
-    'orange',
-    [1.1, 2, 2],
+    'Wasup Gamers',// This is where you put the text strings.
+    0.4,// Text size here.
+    'orange', // Color goes here.
+    [1.1, 2, 2], // This is then where the text is placed.
     Math.PI / 2
 );
 
 loadAndCreateText(
     '/node_modules/three/examples/fonts/helvetiker_regular.typeface.json',
-    ' Oh shit what it do',
-    0.3,
-    'purple',
-    [-1, 2, -2],
+    ' Oh shit what it do',// This is where you put the text strings.
+    0.3,// Text size here.
+    'purple', // Color goes here.
+    [-1, 2, -2], // This is then where the text is placed.
     -Math.PI / 2
+);
+
+loadAndCreateText(
+'/node_modules/three/examples/fonts/helvetiker_regular.typeface.json',
+' I built a shelf here',// This is where you put the text strings.
+0.4,// Text size here.
+'Red', // Color goes here.
+[-12, 4, -9], // This is then where the text is placed.
+
+
 );
 
 
@@ -447,7 +470,7 @@ window.addEventListener('click', (event) => {
             console.log('Camera rotated back to the first camera view. looking at the front of the cube.');
 
             // Update the controls with the new camera and enable them
-            controls = setupControls(camera, renderer, controls, false);
+            controls.enabled = true;
 
 
         } else if (intersects[i].object.parent === skateboard5) {
@@ -480,8 +503,7 @@ window.addEventListener('click', (event) => {
                 .start();
             console.log('Camera rotated back to the first camera view. looking at the front of the cube.');
 
-            // Update the controls with the new camera and enable them
-            controls = setupControls(camera, renderer, controls, false);
+            controls.enabled = true;
         }
     }
 }, false);
