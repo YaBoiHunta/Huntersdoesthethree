@@ -51,6 +51,16 @@ function setupFourthCamera() {
     return camera;
 }
 
+function setupFithCamera() {
+    let camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    camera.position.z = 15;
+    camera.position.y = 3;
+    camera.position.x = 7;
+    camera.rotation.y = -Math.PI / 2;
+    return camera;
+}
+
+
 // Set up the renderer
 function setupRenderer() {
     const renderer = new THREE.WebGLRenderer();
@@ -117,6 +127,9 @@ function createBoard(color) {
     board.receiveShadow = true;
     return board;
 }
+
+
+
 
 function createWheels(color) {
     const wheelGeometry = new THREE.CylinderGeometry(0.05, 0.05, 0.1, 32);
@@ -228,7 +241,7 @@ function createLampPost(lightColor) {
     const postGeometry = new THREE.CylinderGeometry(0.1, 0.1, 3, 32);
 
     // Create a mesh material for the post
-    const postMaterial = new THREE.MeshStandardMaterial({ color: 0x8B4513 });
+    const postMaterial = new THREE.MeshStandardMaterial({ color: 0x8B4513 })
 
     // Create and position the post
     const post = new THREE.Mesh(postGeometry, postMaterial);
@@ -258,6 +271,53 @@ function createLampPost(lightColor) {
 
 }
 
+function createExhibit(x, y, z,) {
+    // Create the geometry for the display exhibit
+    const exhibitGeometry = new THREE.BoxGeometry(3, 4, 6);
+
+    // Create the material for the display exhibit
+    const exhibitMaterial = new THREE.MeshPhysicalMaterial({
+        color: 0xffffff, // white
+        transparent: true,
+        transmission: 0.8, // High transmission for glass-like effect
+        roughness: 0, // Low roughness for glass-like effect
+        clearcoat: 1, // High clearcoat for glass-like effect
+        clearcoatRoughness: 0 // Low clearcoat roughness for glass-like effect
+    });
+
+
+
+    // Create the display exhibit
+    const exhibit = new THREE.Mesh(exhibitGeometry, exhibitMaterial);
+
+    // Create the geometry for the bottom
+    const bottomGeometry = new THREE.BoxGeometry(3, 1, 6);// Make sure this is around the same size as the exhibit geometry.
+    
+    // Create the material for the bottom
+    const bottomMaterial = new THREE.MeshPhysicalMaterial({
+        color: 0xffffff, // white
+        transparent: false
+    });
+
+    
+    // Create the bottom
+    const bottom = new THREE.Mesh(bottomGeometry, bottomMaterial);
+    // Position the bottom just below the exhibit
+    bottom.position.set(x, y - 1.5, z);
+
+    // Position the exhibit in the scene
+    exhibit.position.set(x, y, z);
+
+
+
+    
+    // Create a group to hold the exhibit and the bottom
+    const group = new THREE.Group();
+    group.add(exhibit);
+    group.add(bottom);
+    // Return the group
+    return group;
+}
 
 
 
@@ -279,6 +339,8 @@ const controls = setupControls(camera, renderer);
 // Light setup
 const light1 = setupLight(scene);
 const light2 = setupLight(scene);
+const light3 = setupLight(scene);
+light3.position.set(15, 5, 15);
 light1.position.set(2, 5, 5);
 light2.position.set(-2, 5, -5);
 
@@ -315,6 +377,12 @@ skateboard5.rotation.z = Math.PI / -2;
 skateboard6.position.set(-10, 1.5, -10);
 skateboard6.rotation.x = Math.PI / 6;
 
+//setup a 7th skateboard on the shelf.
+const skateboard7 = createSkateboard(scene, "Red", "Green");
+skateboard7.position.set(-10, 3, -10);
+skateboard7.rotation.x = Math.PI / 6;
+
+
 // Set up the second camera
 const secondCamera = setupSecondCamera();
 
@@ -322,6 +390,8 @@ const secondCamera = setupSecondCamera();
 const thirdCamera = setupThirdCamera();
 // setup the fourth camera
 const fourthCamera = setupFourthCamera();
+// setup the fith camera. 
+const FithCamera = setupFithCamera();
 
 // Create a raycaster and a mouse vector
 const raycaster = new THREE.Raycaster();
@@ -348,7 +418,18 @@ yellowLampPost.position.set(-20, 1.5, -10);
 orangeLampPost.position.set(0, 1.5, 20);
 purpleLampPost.position.set(0, 1.5, -20);
 
+const exhibit1 = createExhibit(15, 1.5, 15);
+scene.add(exhibit1);
 
+
+// Lets create a new plane that will be the backboard for the text. Behind the exhibit display.
+const textPlaneGeometry = new THREE.PlaneGeometry(15, 15);
+const textPlaneMaterial = new THREE.MeshStandardMaterial({ color: "Green", side: THREE.DoubleSide });
+const textPlane = new THREE.Mesh(textPlaneGeometry, textPlaneMaterial);
+textPlane.position.set(20, 3, 15);
+textPlane.rotation.y = Math.PI / 2;
+
+scene.add(textPlane);
 
 
 
@@ -399,14 +480,25 @@ loadAndCreateText(
 );
 
 loadAndCreateText(
-'/node_modules/three/examples/fonts/helvetiker_regular.typeface.json',
-' I built a shelf here',// This is where you put the text strings.
-0.4,// Text size here.
-'Red', // Color goes here.
-[-12, 4, -9], // This is then where the text is placed.
-
-
+    '/node_modules/three/examples/fonts/helvetiker_regular.typeface.json',
+    ' I built a shelf here',// This is where you put the text strings.
+    0.4,// Text size here.
+    'Red', // Color goes here.
+    [-12, 4, -9], // This is then where the text is placed.
 );
+
+loadAndCreateText(
+    '/node_modules/three/examples/fonts/helvetiker_bold.typeface.json',
+    'Shop menu',
+    0.9,
+    'Red',
+    [19.9, 9, 10], 
+    -Math.PI / 2
+);
+
+
+
+
 
 
 // This is the function that will be called when the user clicks on the skateboard.
@@ -504,7 +596,22 @@ window.addEventListener('click', (event) => {
             console.log('Camera rotated back to the first camera view. looking at the front of the cube.');
 
             controls.enabled = true;
+        }else if (intersects[i].object.parent === skateboard7) {
+            // Create a tween that interpolates the position and rotation of the camera to the position and rotation of the fourth camera
+            new Tween.Tween(camera.position)
+                .to(FithCamera.position, 2000)
+                .onUpdate(() => camera.lookAt(shelf.position))
+                .start();
+        
+            new Tween.Tween(camera.rotation)
+                .to({ x: FithCamera.rotation.x, y: FithCamera.rotation.y, z: FithCamera.rotation.z }, 2000)
+                .start();
+            console.log('Camera rotated to the fourth camera angle, and is looking at the shelf.');
+        
+            // Disable the controls
+            controls.enabled = false;
         }
+
     }
 }, false);
 
