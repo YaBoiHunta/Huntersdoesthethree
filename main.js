@@ -63,7 +63,8 @@ function setupFithCamera() {
 
 // Set up the renderer
 function setupRenderer() {
-    const renderer = new THREE.WebGLRenderer();
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    const antialias = true;
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.body.appendChild(renderer.domElement);
     renderer.shadowMap.enabled = true;
@@ -340,7 +341,7 @@ const controls = setupControls(camera, renderer);
 const light1 = setupLight(scene);
 const light2 = setupLight(scene);
 const light3 = setupLight(scene);
-light3.position.set(15, 5, 15);
+light3.position.set(15, 10, 15);
 light1.position.set(2, 5, 5);
 light2.position.set(-2, 5, -5);
 
@@ -359,6 +360,9 @@ const skateboard4 = createSkateboard(scene, "Black", "White");
 const skateboard5 = createSkateboard(scene, "Yellow", "Blue");
 
 const skateboard6 = createSkateboard(scene, "White", "Green");
+const skateboard7 = createSkateboard(scene, "Red", "Green");
+
+const skateboard8 = createSkateboard(scene, "Purple", "Purple");
 
 
 // Position the skateboards
@@ -378,9 +382,11 @@ skateboard6.position.set(-10, 1.5, -10);
 skateboard6.rotation.x = Math.PI / 6;
 
 //setup a 7th skateboard on the shelf.
-const skateboard7 = createSkateboard(scene, "Red", "Green");
 skateboard7.position.set(-10, 3, -10);
 skateboard7.rotation.x = Math.PI / 6;
+
+skateboard8.position.set(18, 4.5, 15);
+skateboard8.rotation.y = Math.PI / 2;
 
 
 // Set up the second camera
@@ -403,19 +409,19 @@ shelf.position.set(-10, 1.5, -10);
 scene.add(shelf);
 // Create the colored lamp post variables.
 const redLampPost = createLampPost(0xFF0000);
-const blueLampPost = createLampPost(0x0000FF);
+/*const blueLampPost = createLampPost(0x0000FF);
 const greenLampPost = createLampPost(0x00FF00);
 const yellowLampPost = createLampPost(0xFFFF00);
 const orangeLampPost = createLampPost(0xC04000);
-const purpleLampPost = createLampPost(0x800080);
+*/const purpleLampPost = createLampPost(0x800080);
 
 // The add them to the scene. And then place them in the correct positions.
-scene.add(redLampPost, blueLampPost, greenLampPost, yellowLampPost, orangeLampPost, purpleLampPost);
+scene.add(redLampPost, /*blueLampPost, greenLampPost, yellowLampPost orangeLampPost, */purpleLampPost);
 redLampPost.position.set(20, 1.5, -10);
-blueLampPost.position.set(20, 1.5, 10);
-greenLampPost.position.set(-20, 1.5, 10);
-yellowLampPost.position.set(-20, 1.5, -10);
-orangeLampPost.position.set(0, 1.5, 20);
+// blueLampPost.position.set(20, 1.5, 10);
+// greenLampPost.position.set(-20, 1.5, 10);
+// yellowLampPost.position.set(-20, 1.5, -10);
+// orangeLampPost.position.set(0, 1.5, 20);
 purpleLampPost.position.set(0, 1.5, -20);
 
 const exhibit1 = createExhibit(15, 1.5, 15);
@@ -610,6 +616,22 @@ window.addEventListener('click', (event) => {
         
             // Disable the controls
             controls.enabled = false;
+        } else if // When the user clicks on the 8th skateboard. Bring them back to the first camera.
+        // NOTE THIS NEEDS TO BE SMOOTHED OUT.
+        (intersects[i].object.parent === skateboard8) {
+            // Create a tween that interpolates the position and rotation of the fourth camera to the position and rotation of the first camera
+            new Tween.Tween(camera.position)
+                .to(setupCamera().position, 2000)
+                .onUpdate(() => camera.lookAt(cube.position))
+                .start();
+
+            new Tween.Tween(camera.rotation)
+                .to({ x: setupCamera().rotation.x, y: setupCamera().rotation.y, z: setupCamera().rotation.z }, 2000)
+                .onUpdate(() => camera.lookAt(cube.position))
+                .start();
+            console.log('Camera rotated back to the first camera view. looking at the front of the cube.');
+
+            controls.enabled = true;
         }
 
     }
