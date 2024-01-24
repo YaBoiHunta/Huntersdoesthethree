@@ -14,3 +14,5 @@ The differnt branches show differnt ideas and thoughts as i progress through thi
 Ill slowly push my more complete things to the main branch, But for now. The ones that have the recent pushes are what im working on and figuring out. 
 
 1/9 Okay i got the fundamentals down for what i want this project to be. Here is a rough draft.
+
+1/24/2024 Update. You can clone this repo and serve it with NPX vite.
