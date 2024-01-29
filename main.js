@@ -18,7 +18,8 @@ function setupCamera(x = 0, y = 5, z = 10, rotationY = 0) {
 
 // Set up the renderer
 function setupRenderer() {
-    const renderer = new THREE.WebGLRenderer();
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.body.appendChild(renderer.domElement);
     renderer.shadowMap.enabled = true;
@@ -247,7 +248,31 @@ function createGlassExhibit() {
 
     return exhibit;
 }
+function createTipBowl() {
+    // Define the points for the shape of the bowl
+    const points = [];
+    for (let i = 0; i < 10; ++i) {
+        points.push(new THREE.Vector2(Math.sin(i * 0.2) * 0.3 + 0.3, (i - 5) * 0.08));
+    }
 
+    // Create the LatheGeometry using these points
+    const geometry = new THREE.LatheGeometry(points);
+
+    // Create a MeshPhysicalMaterial with the desired color and double-sided
+    const material = new THREE.MeshPhysicalMaterial({ color: 0x0000ff, side: THREE.DoubleSide }); // Blue color
+
+    // Create a Mesh using the geometry and material
+    const bowl = new THREE.Mesh(geometry, material);
+
+    // Position the bowl on top of the exhibit
+    bowl.position.y = 2.756; // Adjust the position as needed
+    bowl.position.z = -10; // Adjust the position as needed
+
+    // Scale down the bowl
+    bowl.scale.set(0.5, 0.5, 0.5);
+
+    return bowl;
+}
 
 function createBackWall() {
     const geometry = new THREE.PlaneGeometry(20, 15); // Adjust the size as needed
@@ -340,7 +365,9 @@ const sign = createSign(scene, post);
 // Position of the first skateboard on the z-axis
 skateboard1.position.set(-.5, .5, 3);
 // Position of the second skateboard the 3 axis's.
-
+const bowl = createTipBowl();
+bowl.name = "tipBowl"; // adds a identifier to the bowl
+scene.add(bowl);
 
 /**
  * Represents a glass exhibit for skateboards.
@@ -404,8 +431,9 @@ skateboard8.rotation.x = Math.PI / 2;
 // call the setupSecondCamera function to set up the second camera that will be used when the user clicks on the skateboard.
 
 let firstCamera  = setupCamera(8, 1, 0, Math.PI / 2);
+let currentCamera = firstCamera;
 // Call the third camera function to setup the third camera that will be used when the user clicks on the skateboard.
-let secondCamera  = setupCamera(8, 1, 0, Math.PI / 2);
+let secondCamera  = setupCamera(-10, 5, 0, Math.PI / 2);
 
 let thirdCamera  = setupCamera(0, 0, 0,);
 // Rotate the third camera to look at the shop menu wall.
@@ -484,29 +512,38 @@ window.addEventListener('click', (event) => {
     // Calculate objects intersecting the raycaster's ray
     const intersects = raycaster.intersectObjects(scene.children, true);
 
-    // Check if any of the skateboards is among the intersected objects
+    // Handle the click event for each intersected object
     for (let i = 0; i < intersects.length; i++) {
-        if (intersects[i].object.parent === skateboard1) {
-            // Handle the click event for skateboard1
-            // TODO: Add your code here
+        if (intersects[i].object.name === "tipBowl"){
+            currentCamera = secondCamera;
+            console.log("User clicked on the tip bowl"); // Log a message to the console
+            // Start a transition to the second camera
+            new Tween.Tween(currentCamera.position)
+            .to({
+                x: secondCamera.position.x,
+                y: secondCamera.position.y,
+                z: secondCamera.position.z
+            }, 2000) // 2 seconds
+            .easing(Tween.Easing.Quadratic.Out) // Use an easing function for a smoother transition
+            .onUpdate(() => {
+                currentCamera.lookAt(scene.position); // Keep the camera pointed towards the scene
+            })
+            .onComplete(() => {
+                currentCamera = secondCamera; // Set the current camera to the second camera once the transition is complete
+            })
+            .start();
 
-        } else if (intersects[i].object.parent === skateboard2) {
-            // Handle the click event for skateboard2
-            // TODO: Add your code here
-
-        } else if (intersects[i].object.parent === skateboard3 || intersects[i].object.parent === skateboard1) {
-            // Handle the click event for skateboard3 and skateboard4
-            // TODO: Add your code here
+            break; // Exit the loop
         }
     }
 }, false);
 
-// Render the scene and update the position of the rectangle
-function render() {
-    requestAnimationFrame(render);
-    Tween.update();
-    renderer.render(scene, camera);
-}
+    // Render the scene and update the position of the rectangle
+    function render() {
+        requestAnimationFrame(render);
+        Tween.update();
+        renderer.render(scene, camera);
+    }
 
 // Start rendering
 render();
