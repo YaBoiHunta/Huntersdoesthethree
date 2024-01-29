@@ -329,7 +329,7 @@ const plane = createPlane(scene);
 const skateboard1 = createSkateboard(scene, "Red", "Green");
 const skateboard2 = createSkateboard(scene, "Blue", "Yellow");
 const skateboard3 = createSkateboard(scene, "Purple", "Orange");
-const skateboard4 = createSkateboard(scene, "Black", "White");
+
 const skateboard5 = createSkateboard(scene, "Black", "White");
 const skateboard6 = createSkateboard(scene, "Green", "Green");
 const skateboard7 = createSkateboard(scene, "Blue", "Blue");
@@ -431,7 +431,7 @@ greenLampPost.position.set(10,1.5,-10);
 
 disposeObject(skateboard2);
 disposeObject(skateboard3);
-disposeObject(skateboard4);
+
 
 
 function loadAndCreateText(fontPath, textString, size, color, position, rotationY) {
@@ -460,6 +460,16 @@ loadAndCreateText(
     [-1.3, 2, 1]
 );
 
+loadAndCreateText(
+    '/node_modules/three/examples/fonts/optimer_bold.typeface.json',
+
+'Welcome to the shop menu. Enjoy your stay.',
+0.5,
+'red',
+[-4, 5, -14],
+
+);
+
 
 // This is the function that will be called when the user clicks on the skateboard.
 
@@ -484,7 +494,7 @@ window.addEventListener('click', (event) => {
             // Handle the click event for skateboard2
             // TODO: Add your code here
 
-        } else if (intersects[i].object.parent === skateboard3 || intersects[i].object.parent === skateboard4) {
+        } else if (intersects[i].object.parent === skateboard3 || intersects[i].object.parent === skateboard1) {
             // Handle the click event for skateboard3 and skateboard4
             // TODO: Add your code here
         }
