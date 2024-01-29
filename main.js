@@ -9,62 +9,16 @@ function setupScene() {
     return scene;
 }
 
-// Set up the camera
-function setupCamera() {
+function setupCamera(x = 0, y = 5, z = 10, rotationY = 0) {
     let camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-    camera.position.z = 10;
-    camera.position.y = 5;
-    return camera;
-} 
-
-// Set up the second camera
-function setupSecondCamera() {
-    let camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-    camera.position.z = 0;
-    camera.position.y = 1; // Height of the Camera. 
-    camera.position.x = 8; // Change the position to look at the scene from a different angle
-    // look at the cube from what would the the right side of it.
-    // Rotate the camera
-    camera.rotation.y = Math.PI / 2;
+    camera.position.set(x, y, z);
+    camera.rotation.y = rotationY;
     return camera;
 }
-// Setup a third camera to look at the left side of the cube.
-
-function setupThirdCamera() {
-    let camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-    camera.position.z = 0;
-    camera.position.y = 1; // Height of the Camera.
-    camera.position.x = -8; // Change the position to look at the scene from a different angle
-    // look at the cube from what would the the left side of it.
-    // Rotate the camera
-    camera.rotation.y = Math.PI / -2;
-    return camera;
-}
-
-function setupFourthCamera() {
-    let camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-    camera.position.z = -6;
-    camera.position.y = 1.5; // Height of the Camera.
-    camera.position.x = -10; // Change the position to look at the scene from a different angle
-    // look at the cube from what would the the right side of it.
-    // Rotate the camera
-    return camera;
-}
-
-function setupFithCamera() {
-    let camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-    camera.position.z = 15;
-    camera.position.y = 3;
-    camera.position.x = 7;
-    camera.rotation.y = -Math.PI / 2;
-    return camera;
-}
-
 
 // Set up the renderer
 function setupRenderer() {
-    const renderer = new THREE.WebGLRenderer({ antialias: true });
-    const antialias = true;
+    const renderer = new THREE.WebGLRenderer();
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.body.appendChild(renderer.domElement);
     renderer.shadowMap.enabled = true;
@@ -129,9 +83,6 @@ function createBoard(color) {
     return board;
 }
 
-
-
-
 function createWheels(color) {
     const wheelGeometry = new THREE.CylinderGeometry(0.05, 0.05, 0.1, 32);
     const wheelMaterial = new THREE.MeshStandardMaterial({ color });
@@ -177,17 +128,6 @@ function createTrucks() {
 }
 
 
-// Create the cube mesh
-function createCube(scene) {
-    const geometry = new THREE.BoxGeometry(2, 2, 2);
-    const material = new THREE.MeshStandardMaterial({ color: "red" });
-    const cube = new THREE.Mesh(geometry, material);
-    cube.position.y = 1;
-    cube.castShadow = true;
-    cube.receiveShadow = true;
-    scene.add(cube);
-    return cube;
-}
 
 // Create the plane mesh
 function createPlane(scene) {
@@ -200,245 +140,298 @@ function createPlane(scene) {
     return plane;
 }
 
+// Create the post mesh
+function createPost(scene) {
+    const geometry = new THREE.BoxGeometry(0.2, 5, 0.2);
+    const material = new THREE.MeshStandardMaterial({ color: "brown" });
+    const post = new THREE.Mesh(geometry, material);
+    post.position.y = 2.5; // Adjust this to position the post correctly
+    post.position.x = -15;
+    post.castShadow = true;
+    post.receiveShadow = true;
+    scene.add(post);
+    return post;
+}
+
+// Create the sign mesh
+function createSign(scene, post) {
+    const geometry = new THREE.BoxGeometry(2, 1, 0.1);
+    const material = new THREE.MeshStandardMaterial({ color: "white" });
+    const sign = new THREE.Mesh(geometry, material);
+    sign.position.y = 4; // Adjust this to position the sign correctly
+    sign.position.x = post.position.x;
+    sign.position.z = post.position.z;
+    sign.castShadow = true;
+    sign.receiveShadow = true;
+    scene.add(sign);
+    return sign;
+}
+
 function createShelf() {
-    // Create a group to hold the parts of the shelf
     const shelfGroup = new THREE.Group();
-
-    // Create a box geometry for the shelves
-    const shelfGeometry = new THREE.BoxGeometry(4, 0.1, 1.5);
-
-    // Create a mesh material for the shelves
+    const shelfGeometry = new THREE.BoxGeometry(1, 0.1, 0.5);
     const shelfMaterial = new THREE.MeshStandardMaterial({ color: 0x8B4513 });
 
-    // Create and position the shelves
     for (let i = 0; i < 3; i++) {
         const shelf = new THREE.Mesh(shelfGeometry, shelfMaterial);
-        shelf.position.y = i * 1.5 - 1; // Adjust this to position the shelves correctly
+        shelf.position.y = i * 1.2 - 1;
         shelf.castShadow = true;
         shelf.receiveShadow = true;
         shelfGroup.add(shelf);
     }
 
-    // Create a box geometry for the sides
-    const sideGeometry = new THREE.BoxGeometry(0.1, 5, 1);
+    const sideGeometry = new THREE.BoxGeometry(0.1, 3, 0.5);
 
-    // Create and position the sides
     for (let i = 0; i < 2; i++) {
         const side = new THREE.Mesh(sideGeometry, shelfMaterial);
-        side.position.x = i * 1.5 - 0.7; // Adjust this to position the sides correctly
+        side.position.x = i * 1 - 0.5;
         side.castShadow = true;
-        side.receiveShadow  = true;
+        side.receiveShadow = true;
         shelfGroup.add(side);
     }
 
     return shelfGroup;
 }
 
-function createLampPost(lightColor) {
-    // Create a group to hold the parts of the lamp post
+function createLampPost(postColor, lightColor) {
     const lampPostGroup = new THREE.Group();
-
-    // Create a cylinder geometry for the post
     const postGeometry = new THREE.CylinderGeometry(0.1, 0.1, 3, 32);
-
-    // Create a mesh material for the post
-    const postMaterial = new THREE.MeshStandardMaterial({ color: 0x8B4513 })
-
-    // Create and position the post
+    const postMaterial = new THREE.MeshStandardMaterial({ color: postColor });
     const post = new THREE.Mesh(postGeometry, postMaterial);
-    post.castShadow = true; // Enable casting shadows
-    post.receiveShadow = true; // Enable receiving shadows
+    post.castShadow = true;
+    post.receiveShadow = true;
     lampPostGroup.add(post);
 
-    // Create a sphere geometry for the light
     const lightGeometry = new THREE.SphereGeometry(0.5, 32, 32);
-
-    // Create a mesh material for the light
     const lightMaterial = new THREE.MeshToonMaterial({ color: lightColor, transparent: true, opacity: 1 });
-    // Create and position the light sphere
     const lightSphere = new THREE.Mesh(lightGeometry, lightMaterial);
-    lightSphere.position.y = 1.5; // Adjust this to position the light sphere correctly
-    lightSphere.castShadow = true; // Enable casting shadows
-    lightSphere.receiveShadow = true; // Enable receiving shadows
+    lightSphere.position.y = 1.5;
+    lightSphere.castShadow = false;
+    lightSphere.receiveShadow = false;
     lampPostGroup.add(lightSphere);
 
-    // Create a point light
     const pointLight = new THREE.PointLight(lightColor, 50, 32);
-    pointLight.position.set(0, 1.5, 0); // Position the light at the same position as the light sphere
-    pointLight.castShadow = true; // Enable casting shadows
+    pointLight.position.set(0, 1.5, 0);
+    pointLight.castShadow = false;
     lampPostGroup.add(pointLight);
 
     return lampPostGroup;
-
 }
 
-function createExhibit(x, y, z,) {
-    // Create the geometry for the display exhibit
-    const exhibitGeometry = new THREE.BoxGeometry(3, 4, 6);
 
-    // Create the material for the display exhibit
-    const exhibitMaterial = new THREE.MeshPhysicalMaterial({
-        color: 0xffffff, // white
+function createGlassExhibit() {
+    const geometry = new THREE.BoxGeometry(8, 2, 2.5); // Adjust the size as needed
+    const material = new THREE.MeshPhysicalMaterial({
+        color: 0xffffff,
+        metalness: 0,
+        roughness: 0,
+        alphaTest: 0.5,
+        opacity: 0.5, // This makes the material transparent
         transparent: true,
-        transmission: 0.8, // High transmission for glass-like effect
-        roughness: 0, // Low roughness for glass-like effect
-        clearcoat: 1, // High clearcoat for glass-like effect
-        clearcoatRoughness: 0 // Low clearcoat roughness for glass-like effect
+        reflectivity: 1 // This makes the material reflective
     });
+    const exhibit = new THREE.Mesh(geometry, material);
 
-
-
-    // Create the display exhibit
-    const exhibit = new THREE.Mesh(exhibitGeometry, exhibitMaterial);
-
-    // Create the geometry for the bottom
-    const bottomGeometry = new THREE.BoxGeometry(3, 1, 6);// Make sure this is around the same size as the exhibit geometry.
-    
-    // Create the material for the bottom
-    const bottomMaterial = new THREE.MeshPhysicalMaterial({
-        color: 0xffffff, // white
-        transparent: false
+    // Create the stand
+    const standGeometry = new THREE.BoxGeometry(8, 0.2, 2.5); // Adjust the size as needed
+    const standMaterial = new THREE.MeshPhysicalMaterial({
+        color: 0x555555, // Change the color as needed
+        metalness: 0.8,
+        roughness: 0.4
     });
+    const stand = new THREE.Mesh(standGeometry, standMaterial);
+    stand.position.y = -1.1; // Adjust the position as needed
 
-    
-    // Create the bottom
-    const bottom = new THREE.Mesh(bottomGeometry, bottomMaterial);
-    // Position the bottom just below the exhibit
-    bottom.position.set(x, y - 1.5, z);
+    // Add the stand to the exhibit
+    exhibit.add(stand);
 
-    // Position the exhibit in the scene
-    exhibit.position.set(x, y, z);
-
+    return exhibit;
+}
 
 
-    
-    // Create a group to hold the exhibit and the bottom
-    const group = new THREE.Group();
-    group.add(exhibit);
-    group.add(bottom);
-    // Return the group
-    return group;
+function createBackWall() {
+    const geometry = new THREE.PlaneGeometry(20, 15); // Adjust the size as needed
+    const material = new THREE.MeshPhysicalMaterial({
+        color: 0xffffff,
+        side: THREE.DoubleSide
+    });
+    const wall = new THREE.Mesh(geometry, material);
+    wall.position.z = -15; // Adjust the position as needed
+    wall.position.x = 3;
+    return wall;
+}
+
+function disposeObject(object) {
+    if (!object) return;
+
+    // Remove the object from the scene
+    scene.remove(object);
+
+    // Dispose of the object's geometry
+    if (object.geometry) {
+        object.geometry.dispose();
+    }
+
+    // Dispose of the object's material
+    if (object.material) {
+        if (object.material instanceof THREE.MeshFaceMaterial || object.material instanceof THREE.MultiMaterial) {
+            object.material.materials.forEach(function (mtrl, idx) {
+                if (mtrl.map) mtrl.map.dispose();
+                if (mtrl.lightMap) mtrl.lightMap.dispose();
+                if (mtrl.bumpMap) mtrl.bumpMap.dispose();
+                if (mtrl.normalMap) mtrl.normalMap.dispose();
+                if (mtrl.specularMap) mtrl.specularMap.dispose();
+                if (mtrl.envMap) mtrl.envMap.dispose();
+                mtrl.dispose();    // disposes any programs associated with the material
+            });
+        }
+        else {
+            // Check if the material uses any textures, lightmaps, or envmaps.
+            if (object.material.map) object.material.map.dispose();
+            if (object.material.lightMap) object.material.lightMap.dispose();
+            if (object.material.bumpMap) object.material.bumpMap.dispose();
+            if (object.material.normalMap) object.material.normalMap.dispose();
+            if (object.material.specularMap) object.material.specularMap.dispose();
+            if (object.material.envMap) object.material.envMap.dispose();
+
+            // Dispose of the material
+            object.material.dispose();
+        }
+    }
 }
 
 
 
-// Set up the scene, camera, renderer, controls, light, cube, plane, and other objects in the scene here.
+
+// Set up the scene, camera, renderer, controls, light, cube, plane, and rectangle and other objects in the scene here.
 // MAKE SURE TO ADD AFTER THE SCENE IS SETUP.
+// Assuming controls is an instance of THREE.OrbitControls
+//scene setup
 
-// Scene setup
 const scene = setupScene();
-
-// Camera setup
-const camera = setupCamera();
-
-// Renderer setup
+// camera setup
+let camera = setupCamera();
+// renderer setup
 const renderer = setupRenderer();
-
-// Controls setup
-const controls = setupControls(camera, renderer);
-
-// Light setup
+// controls setup
+let controls = setupControls(camera, renderer);
+// light setup
 const light1 = setupLight(scene);
+// Second light setup
 const light2 = setupLight(scene);
-const light3 = setupLight(scene);
-light3.position.set(15, 10, 15);
-light1.position.set(2, 5, 5);
 light2.position.set(-2, 5, -5);
+// Third light setup
+// Create the cube by calling the create cube function.
 
-// Create the cube
-const cube = createCube(scene);
-
-// Create the plane
+// Create the plane by calling the create plane function.
 const plane = createPlane(scene);
-
-// Create the skateboards
+// Create the skateboard by calling the create skateboard function. Then add the colors of it to the skateboard in the scene.
 const skateboard1 = createSkateboard(scene, "Red", "Green");
 const skateboard2 = createSkateboard(scene, "Blue", "Yellow");
 const skateboard3 = createSkateboard(scene, "Purple", "Orange");
 const skateboard4 = createSkateboard(scene, "Black", "White");
-
-const skateboard5 = createSkateboard(scene, "Yellow", "Blue");
-
-const skateboard6 = createSkateboard(scene, "White", "Green");
-const skateboard7 = createSkateboard(scene, "Red", "Green");
-
+const skateboard5 = createSkateboard(scene, "Black", "White");
+const skateboard6 = createSkateboard(scene, "Green", "Green");
+const skateboard7 = createSkateboard(scene, "Blue", "Blue");
 const skateboard8 = createSkateboard(scene, "Purple", "Purple");
+// Create the signpost
+const post = createPost(scene);
+const sign = createSign(scene, post);
+// Position of the first skateboard on the z-axis
+skateboard1.position.set(-.5, .5, 3);
+// Position of the second skateboard the 3 axis's.
 
 
-// Position the skateboards
-skateboard1.position.set(-0.5, 0.5, 3);
-skateboard2.position.set(cube.position.x + 1.2, 1.5, -0.9);
-skateboard2.rotation.z = Math.PI / 2;
-skateboard3.position.set(cube.position.x + 1.2, 1.5, 0.9);
-skateboard3.rotation.z = Math.PI / 2;
-skateboard4.position.set(cube.position.x - 1.2, 1.4, -.9);
-skateboard4.rotation.z = Math.PI / -2;
+/**
+ * Represents a glass exhibit for skateboards.
+ * 
+ * The glass exhibit is a display area where skateboards are showcased.
+ * It provides a transparent enclosure to protect the skateboards while allowing viewers to see them.
+ * 
+ * @param {string} location - The placement or location of the glass exhibit.
+ * @param {number} length - The length of the glass exhibit in lines of skateboards.
+ * @param {number} width - The width of the glass exhibit in lines of skateboards.
+ * @param {number} height - The height of the glass exhibit in lines of skateboards.
+ * @returns {void}
+ */
+/**
+ * Represents a glass exhibit.
+ * 
+ * @param {string} name - The name of the exhibit.
+ * @param {number} capacity - The maximum capacity of the exhibit.
+ * @param {string[]} items - The items displayed in the exhibit.
+ * @returns {object} - The glass exhibit object.
+ */
+/*
+function glassExhibit(name, capacity, items) {
+    // Implementation goes here
+}
 
-skateboard5.position.set(cube.position.x - 1.2, 1.4, .9);
-skateboard5.rotation.z = Math.PI / -2;
+/**
+ * Represents the l lines of the skateboards.
+ * 
+ * @type {number}
+ */
+// var l = 10;
+/**
+ * Represents a glass exhibit.
+ * @param {string} name - The name of the exhibit.
+ * @param {number} capacity - The maximum capacity of the exhibit.
+ * @param {string[]} skateboards - The lines of skateboards in the exhibit.
+ * @returns {Object} - The glass exhibit object.
+ */
+/**
+ * Creates a glass exhibit.
+ * 
+ * @returns {Object} The glass exhibit object.
+ */
+const glassExhibit = createGlassExhibit();
+scene.add(glassExhibit);
+glassExhibit.position.set(2, 1.5,-10);
+const backWall = createBackWall();
+scene.add(backWall);
+skateboard5.position.set(-1, 1.5,-10);
+skateboard5.rotation.x = Math.PI / 2;
+skateboard6.position.set(1, 1.5,-10);
+skateboard6.rotation.x = Math.PI / 2;
+skateboard7.position.set(3, 1.5,-10);
+skateboard7.rotation.x = Math.PI / 2;
+skateboard8.position.set(5, 1.5,-10);
+skateboard8.rotation.x = Math.PI / 2;
 
-// Setup the 6th skateboard on the shelf
-skateboard6.position.set(-10, 1.5, -10);
-skateboard6.rotation.x = Math.PI / 6;
-
-//setup a 7th skateboard on the shelf.
-skateboard7.position.set(-10, 3, -10);
-skateboard7.rotation.x = Math.PI / 6;
-
-skateboard8.position.set(18, 4.5, 15);
-skateboard8.rotation.y = Math.PI / 2;
 
 
-// Set up the second camera
-const secondCamera = setupSecondCamera();
+// call the setupSecondCamera function to set up the second camera that will be used when the user clicks on the skateboard.
 
-// Set up the third camera
-const thirdCamera = setupThirdCamera();
-// setup the fourth camera
-const fourthCamera = setupFourthCamera();
-// setup the fith camera. 
-const FithCamera = setupFithCamera();
+let firstCamera  = setupCamera(8, 1, 0, Math.PI / 2);
+// Call the third camera function to setup the third camera that will be used when the user clicks on the skateboard.
+let secondCamera  = setupCamera(8, 1, 0, Math.PI / 2);
 
-// Create a raycaster and a mouse vector
+let thirdCamera  = setupCamera(0, 0, 0,);
+// Rotate the third camera to look at the shop menu wall.
+thirdCamera.lookAt(glassExhibit.position);// Create a raycaster and a mouse vector
 const raycaster = new THREE.Raycaster();
+// Create a mouse vector
 const mouse = new THREE.Vector2();
-
-// Create and position the shelf
+// Call the shelf function to create the shelf, position it, and then add it to the scene for it to show up.
 const shelf = createShelf();
 shelf.position.set(-10, 1.5, -10);
 scene.add(shelf);
-// Create the colored lamp post variables.
-const redLampPost = createLampPost(0xFF0000);
-/*const blueLampPost = createLampPost(0x0000FF);
-const greenLampPost = createLampPost(0x00FF00);
-const yellowLampPost = createLampPost(0xFFFF00);
-const orangeLampPost = createLampPost(0xC04000);
-*/const purpleLampPost = createLampPost(0x800080);
-
-// The add them to the scene. And then place them in the correct positions.
-scene.add(redLampPost, /*blueLampPost, greenLampPost, yellowLampPost orangeLampPost, */purpleLampPost);
-redLampPost.position.set(20, 1.5, -10);
-// blueLampPost.position.set(20, 1.5, 10);
-// greenLampPost.position.set(-20, 1.5, 10);
-// yellowLampPost.position.set(-20, 1.5, -10);
-// orangeLampPost.position.set(0, 1.5, 20);
-purpleLampPost.position.set(0, 1.5, -20);
-
-const exhibit1 = createExhibit(15, 1.5, 15);
-scene.add(exhibit1);
-
-
-// Lets create a new plane that will be the backboard for the text. Behind the exhibit display.
-const textPlaneGeometry = new THREE.PlaneGeometry(15, 15);
-const textPlaneMaterial = new THREE.MeshStandardMaterial({ color: "Green", side: THREE.DoubleSide });
-const textPlane = new THREE.Mesh(textPlaneGeometry, textPlaneMaterial);
-textPlane.position.set(20, 3, 15);
-textPlane.rotation.y = Math.PI / 2;
-
-scene.add(textPlane);
+// Create the lamp post and position it. Then add it to the scene.
+const redLampPost = createLampPost(0x000000, 0xff0000); // Black post with red light
+scene.add(redLampPost);
+redLampPost.position.set(-5, 1.5, -10);
+// Create the second lamp post and position it. Then add it to the scene.
+const greenLampPost = createLampPost(0x000000, 0x00ff00); // Black post with green light
+scene.add(greenLampPost);
+greenLampPost.position.set(10,1.5,-10);
+// Load the font from its path. Then create the text and add it to the scene.
 
 
 
+disposeObject(skateboard2);
+disposeObject(skateboard3);
+disposeObject(skateboard4);
 
 
 function loadAndCreateText(fontPath, textString, size, color, position, rotationY) {
@@ -461,50 +454,11 @@ function loadAndCreateText(fontPath, textString, size, color, position, rotation
 // Now you can create text with a single function call
 loadAndCreateText(
     '/node_modules/three/examples/fonts/helvetiker_regular.typeface.json',
-    'Project Text.',// This is where you put the text strings.
-    0.3,// Text size here.
-    'green', // Color goes here.
-    [-1.3, 2, 1] // This is then where the text is placed.
+    'Project Text.',
+    0.3,
+    'green',
+    [-1.3, 2, 1]
 );
-
-loadAndCreateText(
-    '/node_modules/three/examples/fonts/helvetiker_regular.typeface.json',
-    'Wasup Gamers',// This is where you put the text strings.
-    0.4,// Text size here.
-    'orange', // Color goes here.
-    [1.1, 2, 2], // This is then where the text is placed.
-    Math.PI / 2
-);
-
-loadAndCreateText(
-    '/node_modules/three/examples/fonts/helvetiker_regular.typeface.json',
-    ' Oh shit what it do',// This is where you put the text strings.
-    0.3,// Text size here.
-    'purple', // Color goes here.
-    [-1, 2, -2], // This is then where the text is placed.
-    -Math.PI / 2
-);
-
-loadAndCreateText(
-    '/node_modules/three/examples/fonts/helvetiker_regular.typeface.json',
-    ' I built a shelf here',// This is where you put the text strings.
-    0.4,// Text size here.
-    'Red', // Color goes here.
-    [-12, 4, -9], // This is then where the text is placed.
-);
-
-loadAndCreateText(
-    '/node_modules/three/examples/fonts/helvetiker_bold.typeface.json',
-    'Shop menu',
-    0.9,
-    'Red',
-    [19.9, 9, 10], 
-    -Math.PI / 2
-);
-
-
-
-
 
 
 // This is the function that will be called when the user clicks on the skateboard.
@@ -523,117 +477,17 @@ window.addEventListener('click', (event) => {
     // Check if any of the skateboards is among the intersected objects
     for (let i = 0; i < intersects.length; i++) {
         if (intersects[i].object.parent === skateboard1) {
-            // Create a tween that interpolates the position and rotation of the first camera to the position and rotation of the second camera
-            new Tween.Tween(camera.position)
-                .to(secondCamera.position, 2000) // 2000 ms = 2 seconds
-                .onUpdate(() => camera.lookAt(cube.position))
-                .start();
-
-            new Tween.Tween(camera.rotation)
-                .to({ x: secondCamera.rotation.x, y: secondCamera.rotation.y, z: secondCamera.rotation.z }, 2000)
-                .onUpdate(() => camera.lookAt(cube.position))
-                .start();
-            console.log('Camera rotated to the second camera angle, and is looking at the right side of the cube.');
-
-            // Disable the controls
-            controls.enabled = false;
+            // Handle the click event for skateboard1
+            // TODO: Add your code here
 
         } else if (intersects[i].object.parent === skateboard2) {
-            // Create a tween that interpolates the position and rotation of the second camera to the position and rotation of the third camera
-            new Tween.Tween(camera.position)
-                .to(thirdCamera.position, 2000)
-                .onUpdate(() => camera.lookAt(cube.position))
-                .start();
-
-            new Tween.Tween(camera.rotation)
-                .to({ x: thirdCamera.rotation.x, y: thirdCamera.rotation.y, z: thirdCamera.rotation.z }, 2000)
-                .onUpdate(() => camera.lookAt(cube.position))
-                .start();
-            console.log('Camera rotated to the third camera angle, and is looking at the left side of the cube.');
-
-            // Disable the controls
-            controls.enabled = false;
+            // Handle the click event for skateboard2
+            // TODO: Add your code here
 
         } else if (intersects[i].object.parent === skateboard3 || intersects[i].object.parent === skateboard4) {
-            // Create a tween that interpolates the position and rotation of the third camera to the position and rotation of the first camera
-            new Tween.Tween(camera.position)
-                .to(setupCamera().position, 2000)
-                .onUpdate(() => camera.lookAt(cube.position))
-                .start();
-
-            new Tween.Tween(camera.rotation)
-                .to({ x: setupCamera().rotation.x, y: setupCamera().rotation.y, z: setupCamera().rotation.z }, 2000)
-                .onUpdate(() => camera.lookAt(cube.position))
-                .start();
-            console.log('Camera rotated back to the first camera view. looking at the front of the cube.');
-
-            // Update the controls with the new camera and enable them
-            controls.enabled = true;
-
-
-        } else if (intersects[i].object.parent === skateboard5) {
-            // Create a tween that interpolates the position and rotation of the camera to the position and rotation of the fourth camera
-            new Tween.Tween(camera.position)
-                .to(fourthCamera.position, 2000)
-                .onUpdate(() => camera.lookAt(shelf.position))
-                .start();
-
-            new Tween.Tween(camera.rotation)
-                .to({ x: fourthCamera.rotation.x, y: fourthCamera.rotation.y, z: fourthCamera.rotation.z }, 2000)
-                .start();
-            console.log('Camera rotated to the fourth camera angle, and is looking at the shelf.');
-
-            // Disable the controls
-            controls.enabled = false;
-        
-        } else if (intersects[i].object.parent === skateboard6) 
-        // Them move back to the first camera then give the user the controls back.
-        {
-            // Create a tween that interpolates the position and rotation of the fourth camera to the position and rotation of the first camera
-            new Tween.Tween(camera.position)
-                .to(setupCamera().position, 2000)
-                .onUpdate(() => camera.lookAt(cube.position))
-                .start();
-
-            new Tween.Tween(camera.rotation)
-                .to({ x: setupCamera().rotation.x, y: setupCamera().rotation.y, z: setupCamera().rotation.z }, 2000)
-                .onUpdate(() => camera.lookAt(cube.position))
-                .start();
-            console.log('Camera rotated back to the first camera view. looking at the front of the cube.');
-
-            controls.enabled = true;
-        }else if (intersects[i].object.parent === skateboard7) {
-            // Create a tween that interpolates the position and rotation of the camera to the position and rotation of the fourth camera
-            new Tween.Tween(camera.position)
-                .to(FithCamera.position, 2000)
-                .onUpdate(() => camera.lookAt(shelf.position))
-                .start();
-        
-            new Tween.Tween(camera.rotation)
-                .to({ x: FithCamera.rotation.x, y: FithCamera.rotation.y, z: FithCamera.rotation.z }, 2000)
-                .start();
-            console.log('Camera rotated to the fourth camera angle, and is looking at the shelf.');
-        
-            // Disable the controls
-            controls.enabled = false;
-        } else if // When the user clicks on the 8th skateboard. Bring them back to the first camera.
-        // NOTE THIS NEEDS TO BE SMOOTHED OUT.
-        (intersects[i].object.parent === skateboard8) {
-            // Create a tween that interpolates the position and rotation of the fourth camera to the position and rotation of the first camera
-            new Tween.Tween(camera.position)
-                .to(setupCamera().position, 2000)
-                .onUpdate(() => camera.lookAt(cube.position))
-                .start();
-
-            new Tween.Tween(camera.rotation)
-                .to({ x: setupCamera().rotation.x, y: setupCamera().rotation.y, z: setupCamera().rotation.z }, 2000)
-                .onUpdate(() => camera.lookAt(cube.position))
-                .start();
-            console.log('Camera rotated back to the first camera view. looking at the front of the cube.');
-
-            controls.enabled = true;
+            // Handle the click event for skateboard3 and skateboard4
+            // TODO: Add your code here
         }
-
     }
 }, false);
 
