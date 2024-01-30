@@ -61,7 +61,6 @@ function createText(font, textString, size, color) {
 }
 
 
-// Create the skateboard mesh
 function createSkateboard(scene, boardColor, wheelColor) {
     const board = createBoard(boardColor);
     const wheels = createWheels(wheelColor);
@@ -75,27 +74,31 @@ function createSkateboard(scene, boardColor, wheelColor) {
 }
 
 function createBoard(color) {
-    const geometry = new THREE.BoxGeometry(1, 0.1, 0.3);
-    const material = new THREE.MeshStandardMaterial({ color });
-    const board = new THREE.Mesh(geometry, material);
-    board.position.y = 0.15;
+    const boardSize = { width: 1, height: 0.1, depth: 0.3 };
+    const boardPosition = { x: 0, y: boardSize.height / 2, z: 0 };
+    const boardMaterial = new THREE.MeshStandardMaterial({ color });
+
+    const boardGeometry = new THREE.BoxGeometry(boardSize.width, boardSize.height, boardSize.depth);
+    const board = new THREE.Mesh(boardGeometry, boardMaterial);
+    board.position.set(boardPosition.x, boardPosition.y, boardPosition.z);
     board.castShadow = true;
     board.receiveShadow = true;
+
     return board;
 }
 
 function createWheels(color) {
-    const wheelGeometry = new THREE.CylinderGeometry(0.05, 0.05, 0.1, 32);
+    const wheelSize = { radius: 0.05, height: 0.1 };
+    const wheelPositions = [
+        { x: -0.45, y: -wheelSize.height / 2, z: 0.15 },
+        { x: 0.45, y: -wheelSize.height / 2, z: 0.15 },
+        { x: -0.45, y: -wheelSize.height / 2, z: -0.15 },
+        { x: 0.45, y: -wheelSize.height / 2, z: -0.15 },
+    ];
     const wheelMaterial = new THREE.MeshStandardMaterial({ color });
 
-    const wheelPositions = [
-        { x: -0.4, y: 0.05, z: 0.1 },
-        { x: 0.4, y: 0.05, z: 0.1 },
-        { x: -0.4, y: 0.05, z: -0.1 },
-        { x: 0.4, y: 0.05, z: -0.1 },
-    ];
-
     const wheels = wheelPositions.map(position => {
+        const wheelGeometry = new THREE.CylinderGeometry(wheelSize.radius, wheelSize.radius, wheelSize.height, 32);
         const wheel = new THREE.Mesh(wheelGeometry, wheelMaterial);
         wheel.position.set(position.x, position.y, position.z);
         wheel.rotation.y = Math.PI / 2;
@@ -104,20 +107,20 @@ function createWheels(color) {
         wheel.receiveShadow = true;
         return wheel;
     });
-    
+
     return wheels;
 }
 
 function createTrucks() {
-    const truckGeometry = new THREE.BoxGeometry(0.02, 0.02, 0.2);
-    const truckMaterial = new THREE.MeshStandardMaterial({ color: "silver" });
-
+    const truckSize = { width: 0.02, height: 0.02, depth: 0.2 };
     const truckPositions = [
-        { x: -0.4, y: 0.1, z: 0 },
-        { x: 0.4, y: 0.1, z: 0 },
+        { x: -0.4, y: truckSize.height / 2, z: 0 },
+        { x: 0.4, y: truckSize.height / 2, z: 0 },
     ];
+    const truckMaterial = new THREE.MeshStandardMaterial({ color: "Gray" });
 
     const trucks = truckPositions.map(position => {
+        const truckGeometry = new THREE.BoxGeometry(truckSize.width, truckSize.height, truckSize.depth);
         const truck = new THREE.Mesh(truckGeometry, truckMaterial);
         truck.position.set(position.x, position.y, position.z);
         truck.castShadow = true;
@@ -395,10 +398,6 @@ function loadAndCreateText(fontPath, textString, size, color, position, rotation
         });
 }
 
-
-
-
-
 loadAndCreateText(
     '/node_modules/three/examples/fonts/optimer_bold.typeface.json', // The path to the font file
 'Welcome to the shop menu. Enjoy your stay.',// The text to display in the scene. You can change this to whatever you want. Or copy this as a layout for your own text.
@@ -406,6 +405,22 @@ loadAndCreateText(
 'red', // The color of the text
 [-4, 5, -14], // The cordiantes of the text on the x, y, and z axis. You can change this to position the text wherever you want.
 );
+function moveCameraTo(targetPosition, lookAtPosition, duration = 2000) {
+    new Tween.Tween(camera.position)
+        .to({
+            x: targetPosition.x,
+            y: targetPosition.y,
+            z: targetPosition.z
+        }, duration)
+        .easing(Tween.Easing.Quadratic.Out)
+        .onUpdate(() => {
+            camera.lookAt(lookAtPosition);
+        })
+        .onComplete(() => {
+            controls.enabled = false;
+        })
+        .start();
+}
 
 const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
@@ -425,30 +440,20 @@ window.addEventListener('click', (event) => {
     for (let i = 0; i < intersects.length; i++) {
         if (intersects[i].object.name === "tipBowl") {
             console.log('Tip bowl has been clicked');
-
-            // Define the target position for the camera
-            const targetPosition = new THREE.Vector3(1, 4, -6); // Replace with the desired position
-
-            // Create a tween to interpolate the camera's position
-            new Tween.Tween(camera.position)
-                .to({
-                    x: targetPosition.x,
-                    y: targetPosition.y,
-                    z: targetPosition.z
-                }, 2000) // 2000 ms = 2 seconds
-                .easing(Tween.Easing.Quadratic.Out) // Use an easing function for a smoother transition
-                .onComplete(() => {
-                    // Disable the controls at the end of the transition
-                    controls.enabled = false;
-                })
-                .start(); // Start the tween
-
-            break; // Exit the loop after the first intersection
+            const targetPosition = new THREE.Vector3(1, 4, -6);
+            const lookAtPosition = new THREE.Vector3(1, 4, -10);
+            moveCameraTo(targetPosition, lookAtPosition);
+            break;
+        } else if (intersects[i].object.name === "skateboard1") {
+            console.log('Skateboard 1 has been clicked');
+            const targetPosition = new THREE.Vector3(0, 5, 10); // Replace with the initial position of the camera
+            const lookAtPosition = new THREE.Vector3(0, 0, 0); // Replace with the initial lookAt position of the camera
+            moveCameraTo(targetPosition, lookAtPosition);
+            break;
         }
     }
-}, false);
+});
 
-   // Render the scene and update the position of the rectangle
 // Render the scene and update the position of the rectangle
 function render() {
     requestAnimationFrame(render);
