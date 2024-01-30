@@ -286,45 +286,6 @@ function createBackWall() {
     return wall;
 }
 
-function disposeObject(object) {
-    if (!object) return;
-
-    // Remove the object from the scene
-    scene.remove(object);
-
-    // Dispose of the object's geometry
-    if (object.geometry) {
-        object.geometry.dispose();
-    }
-
-    // Dispose of the object's material
-    if (object.material) {
-        if (object.material instanceof THREE.MeshFaceMaterial || object.material instanceof THREE.MultiMaterial) {
-            object.material.materials.forEach(function (mtrl, idx) {
-                if (mtrl.map) mtrl.map.dispose();
-                if (mtrl.lightMap) mtrl.lightMap.dispose();
-                if (mtrl.bumpMap) mtrl.bumpMap.dispose();
-                if (mtrl.normalMap) mtrl.normalMap.dispose();
-                if (mtrl.specularMap) mtrl.specularMap.dispose();
-                if (mtrl.envMap) mtrl.envMap.dispose();
-                mtrl.dispose();    // disposes any programs associated with the material
-            });
-        }
-        else {
-            // Check if the material uses any textures, lightmaps, or envmaps.
-            if (object.material.map) object.material.map.dispose();
-            if (object.material.lightMap) object.material.lightMap.dispose();
-            if (object.material.bumpMap) object.material.bumpMap.dispose();
-            if (object.material.normalMap) object.material.normalMap.dispose();
-            if (object.material.specularMap) object.material.specularMap.dispose();
-            if (object.material.envMap) object.material.envMap.dispose();
-
-            // Dispose of the material
-            object.material.dispose();
-        }
-    }
-}
-
 
 
 
@@ -332,6 +293,7 @@ function disposeObject(object) {
 // MAKE SURE TO ADD AFTER THE SCENE IS SETUP.
 // Assuming controls is an instance of THREE.OrbitControls
 //scene setup
+
 
 const scene = setupScene();
 // camera setup
@@ -341,124 +303,80 @@ const renderer = setupRenderer();
 // controls setup
 let controls = setupControls(camera, renderer);
 // light setup
-const light1 = setupLight(scene);
+
 // Second light setup
-const light2 = setupLight(scene);
-light2.position.set(-2, 5, -5);
+
 // Third light setup
 // Create the cube by calling the create cube function.
 
 // Create the plane by calling the create plane function.
 const plane = createPlane(scene);
 // Create the skateboard by calling the create skateboard function. Then add the colors of it to the skateboard in the scene.
-const skateboard1 = createSkateboard(scene, "Red", "Green");
-const skateboard2 = createSkateboard(scene, "Blue", "Yellow");
-const skateboard3 = createSkateboard(scene, "Purple", "Orange");
 
-const skateboard5 = createSkateboard(scene, "Black", "White");
-const skateboard6 = createSkateboard(scene, "Green", "Green");
-const skateboard7 = createSkateboard(scene, "Blue", "Blue");
-const skateboard8 = createSkateboard(scene, "Purple", "Purple");
+const skateboard1 = createSkateboard(scene, "Black", "White");
+const skateboard2 = createSkateboard(scene, "Green", "Green");
+const skateboard3 = createSkateboard(scene, "Blue", "Blue");
+const skateboard4 = createSkateboard(scene, "Purple", "Purple");
 // Create the signpost
 const post = createPost(scene);
 const sign = createSign(scene, post);
 // Position of the first skateboard on the z-axis
-skateboard1.position.set(-.5, .5, 3);
 // Position of the second skateboard the 3 axis's.
 const bowl = createTipBowl();
 bowl.name = "tipBowl"; // adds a identifier to the bowl
 scene.add(bowl);
 
-/**
- * Represents a glass exhibit for skateboards.
- * 
- * The glass exhibit is a display area where skateboards are showcased.
- * It provides a transparent enclosure to protect the skateboards while allowing viewers to see them.
- * 
- * @param {string} location - The placement or location of the glass exhibit.
- * @param {number} length - The length of the glass exhibit in lines of skateboards.
- * @param {number} width - The width of the glass exhibit in lines of skateboards.
- * @param {number} height - The height of the glass exhibit in lines of skateboards.
- * @returns {void}
- */
-/**
- * Represents a glass exhibit.
- * 
- * @param {string} name - The name of the exhibit.
- * @param {number} capacity - The maximum capacity of the exhibit.
- * @param {string[]} items - The items displayed in the exhibit.
- * @returns {object} - The glass exhibit object.
- */
-/*
-function glassExhibit(name, capacity, items) {
-    // Implementation goes here
-}
 
-/**
- * Represents the l lines of the skateboards.
- * 
- * @type {number}
- */
-// var l = 10;
-/**
- * Represents a glass exhibit.
- * @param {string} name - The name of the exhibit.
- * @param {number} capacity - The maximum capacity of the exhibit.
- * @param {string[]} skateboards - The lines of skateboards in the exhibit.
- * @returns {Object} - The glass exhibit object.
- */
-/**
- * Creates a glass exhibit.
- * 
- * @returns {Object} The glass exhibit object.
- */
 const glassExhibit = createGlassExhibit();
 scene.add(glassExhibit);
 glassExhibit.position.set(2, 1.5,-10);
 const backWall = createBackWall();
 scene.add(backWall);
-skateboard5.position.set(-1, 1.5,-10);
-skateboard5.rotation.x = Math.PI / 2;
-skateboard6.position.set(1, 1.5,-10);
-skateboard6.rotation.x = Math.PI / 2;
-skateboard7.position.set(3, 1.5,-10);
-skateboard7.rotation.x = Math.PI / 2;
-skateboard8.position.set(5, 1.5,-10);
-skateboard8.rotation.x = Math.PI / 2;
-
-
-
+skateboard1.position.set(-1, 1.5,-10);
+skateboard1.rotation.x = Math.PI / 2;
+skateboard2.position.set(1, 1.5,-10);
+skateboard2.rotation.x = Math.PI / 2;
+skateboard3.position.set(3, 1.5,-10);
+skateboard3.rotation.x = Math.PI / 2;
+skateboard4.position.set(5, 1.5,-10);
+skateboard4.rotation.x = Math.PI / 2;
 // call the setupSecondCamera function to set up the second camera that will be used when the user clicks on the skateboard.
+// Setup cameras
+let firstCamera = setupCamera(9, 4, 10, Math.PI / 2);
+let currentCamera = firstCamera; // Initialize currentCamera to firstCamera
+let secondCamera = setupCamera(0, 15, 10, Math.PI / 2);
+scene.add(firstCamera);
+scene.add(secondCamera);
+let thirdCamera = setupCamera(0, 0, 0);
+thirdCamera.lookAt(glassExhibit.position);
 
-let firstCamera  = setupCamera(8, 1, 0, Math.PI / 2);
-let currentCamera = firstCamera;
-// Call the third camera function to setup the third camera that will be used when the user clicks on the skateboard.
-let secondCamera  = setupCamera(-10, 5, 0, Math.PI / 2);
 
-let thirdCamera  = setupCamera(0, 0, 0,);
-// Rotate the third camera to look at the shop menu wall.
-thirdCamera.lookAt(glassExhibit.position);// Create a raycaster and a mouse vector
-const raycaster = new THREE.Raycaster();
-// Create a mouse vector
-const mouse = new THREE.Vector2();
-// Call the shelf function to create the shelf, position it, and then add it to the scene for it to show up.
+let overHeadLight = setupLight(scene);
+overHeadLight.position.set(1, 6, -7);
+// Create a raycaster and a mouse vector
+
+
+// Function to create and position a lamp post
+function createAndPositionLampPost(baseColor, lightColor, position, intensity) {
+    const lampPost = createLampPost(baseColor, lightColor); // baseColor instead of color
+    // Create a light source and set its intensity
+    let light = new THREE.PointLight(lightColor, intensity);
+    lampPost.add(light); // Add the light to the lampPost
+    lampPost.position.set(...position);
+    scene.add(lampPost);
+}
+// Create and position objects
 const shelf = createShelf();
 shelf.position.set(-10, 1.5, -10);
 scene.add(shelf);
-// Create the lamp post and position it. Then add it to the scene.
-const redLampPost = createLampPost(0x000000, 0xff0000); // Black post with red light
-scene.add(redLampPost);
-redLampPost.position.set(-5, 1.5, -10);
-// Create the second lamp post and position it. Then add it to the scene.
-const greenLampPost = createLampPost(0x000000, 0x00ff00); // Black post with green light
-scene.add(greenLampPost);
-greenLampPost.position.set(10,1.5,-10);
+
+createAndPositionLampPost(0x000000, 0xff0000, [-5, 1.5, -10], 0.5); // Red lamp post with increased brightness
+createAndPositionLampPost(0x000000, 0x00ff00, [10, 1.5, -10], 0.5); // Green lamp post with decreased brightness
+
 // Load the font from its path. Then create the text and add it to the scene.
 
 
 
-disposeObject(skateboard2);
-disposeObject(skateboard3);
 
 
 
@@ -479,71 +397,63 @@ function loadAndCreateText(fontPath, textString, size, color, position, rotation
 
 
 
-// Now you can create text with a single function call
-loadAndCreateText(
-    '/node_modules/three/examples/fonts/helvetiker_regular.typeface.json',
-    'Project Text.',
-    0.3,
-    'green',
-    [-1.3, 2, 1]
-);
+
 
 loadAndCreateText(
-    '/node_modules/three/examples/fonts/optimer_bold.typeface.json',
-
-'Welcome to the shop menu. Enjoy your stay.',
-0.5,
-'red',
-[-4, 5, -14],
-
+    '/node_modules/three/examples/fonts/optimer_bold.typeface.json', // The path to the font file
+'Welcome to the shop menu. Enjoy your stay.',// The text to display in the scene. You can change this to whatever you want. Or copy this as a layout for your own text.
+0.5, // The size of the text
+'red', // The color of the text
+[-4, 5, -14], // The cordiantes of the text on the x, y, and z axis. You can change this to position the text wherever you want.
 );
 
+const raycaster = new THREE.Raycaster();
+const mouse = new THREE.Vector2();
 
-// This is the function that will be called when the user clicks on the skateboard.
-
+// Add an event listener for the mouse click event
 window.addEventListener('click', (event) => {
-    // Update the mouse vector with the mouse's normalized device coordinates (-1 to +1)
+    // Normalize the mouse position from -1 to 1
     mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
     mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
 
-    // Update the raycaster's ray with the camera and mouse position
+    // Update the picking ray with the camera and mouse position
     raycaster.setFromCamera(mouse, camera);
 
-    // Calculate objects intersecting the raycaster's ray
-    const intersects = raycaster.intersectObjects(scene.children, true);
+    // Calculate objects intersecting the picking ray
+    const intersects = raycaster.intersectObjects(scene.children);
 
-    // Handle the click event for each intersected object
     for (let i = 0; i < intersects.length; i++) {
-        if (intersects[i].object.name === "tipBowl"){
-            currentCamera = secondCamera;
-            console.log("User clicked on the tip bowl"); // Log a message to the console
-            // Start a transition to the second camera
-            new Tween.Tween(currentCamera.position)
-            .to({
-                x: secondCamera.position.x,
-                y: secondCamera.position.y,
-                z: secondCamera.position.z
-            }, 2000) // 2 seconds
-            .easing(Tween.Easing.Quadratic.Out) // Use an easing function for a smoother transition
-            .onUpdate(() => {
-                currentCamera.lookAt(scene.position); // Keep the camera pointed towards the scene
-            })
-            .onComplete(() => {
-                currentCamera = secondCamera; // Set the current camera to the second camera once the transition is complete
-            })
-            .start();
+        if (intersects[i].object.name === "tipBowl") {
+            console.log('Tip bowl has been clicked');
 
-            break; // Exit the loop
+            // Define the target position for the camera
+            const targetPosition = new THREE.Vector3(1, 4, -6); // Replace with the desired position
+
+            // Create a tween to interpolate the camera's position
+            new Tween.Tween(camera.position)
+                .to({
+                    x: targetPosition.x,
+                    y: targetPosition.y,
+                    z: targetPosition.z
+                }, 2000) // 2000 ms = 2 seconds
+                .easing(Tween.Easing.Quadratic.Out) // Use an easing function for a smoother transition
+                .onComplete(() => {
+                    // Disable the controls at the end of the transition
+                    controls.enabled = false;
+                })
+                .start(); // Start the tween
+
+            break; // Exit the loop after the first intersection
         }
     }
 }, false);
 
-    // Render the scene and update the position of the rectangle
-    function render() {
-        requestAnimationFrame(render);
-        Tween.update();
-        renderer.render(scene, camera);
-    }
+   // Render the scene and update the position of the rectangle
+// Render the scene and update the position of the rectangle
+function render() {
+    requestAnimationFrame(render);
+    Tween.update();
+    renderer.render(scene, camera);
+}
 
-// Start rendering
-render();
+render(); // Start the render loop
