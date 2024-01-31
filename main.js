@@ -327,6 +327,7 @@ const sign = createSign(scene, post);
 // Position of the second skateboard the 3 axis's.
 const bowl = createTipBowl();
 bowl.name = "tipBowl"; // adds a identifier to the bowl
+
 scene.add(bowl);
 
 
@@ -343,6 +344,8 @@ skateboard3.position.set(3, 1.5,-10);
 skateboard3.rotation.x = Math.PI / 2;
 skateboard4.position.set(5, 1.5,-10);
 skateboard4.rotation.x = Math.PI / 2;
+skateboard1.name = "skateboard1";
+scene.add(skateboard1);
 // call the setupSecondCamera function to set up the second camera that will be used when the user clicks on the skateboard.
 // Setup cameras
 let firstCamera = setupCamera(9, 4, 10, Math.PI / 2);
@@ -373,16 +376,10 @@ const shelf = createShelf();
 shelf.position.set(-10, 1.5, -10);
 scene.add(shelf);
 
-createAndPositionLampPost(0x000000, 0xff0000, [-5, 1.5, -10], 0.5); // Red lamp post with increased brightness
+createAndPositionLampPost(0x000000, 0xff0000, [-5, 1.5, -10], 0.53); // Red lamp post with increased brightness
 createAndPositionLampPost(0x000000, 0x00ff00, [10, 1.5, -10], 0.5); // Green lamp post with decreased brightness
 
 // Load the font from its path. Then create the text and add it to the scene.
-
-
-
-
-
-
 function loadAndCreateText(fontPath, textString, size, color, position, rotationY) {
     loadFont(fontPath)
         .then(font => {
@@ -435,7 +432,7 @@ window.addEventListener('click', (event) => {
     raycaster.setFromCamera(mouse, camera);
 
     // Calculate objects intersecting the picking ray
-    const intersects = raycaster.intersectObjects(scene.children);
+    const intersects = raycaster.intersectObjects(scene.children).concat(raycaster.intersectObject(skateboard1, true));    
 
     for (let i = 0; i < intersects.length; i++) {
         if (intersects[i].object.name === "tipBowl") {
@@ -448,11 +445,13 @@ window.addEventListener('click', (event) => {
             console.log('Skateboard 1 has been clicked');
             const targetPosition = new THREE.Vector3(0, 5, 10); // Replace with the initial position of the camera
             const lookAtPosition = new THREE.Vector3(0, 0, 0); // Replace with the initial lookAt position of the camera
+            console.log(intersects.map(i => i.object.name));
             moveCameraTo(targetPosition, lookAtPosition);
             break;
         }
     }
 });
+
 
 // Render the scene and update the position of the rectangle
 function render() {
