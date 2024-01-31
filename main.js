@@ -288,13 +288,8 @@ function createBackWall() {
     wall.position.x = 3;
     return wall;
 }
-
-
-
-
 // Set up the scene, camera, renderer, controls, light, cube, plane, and rectangle and other objects in the scene here.
 // MAKE SURE TO ADD AFTER THE SCENE IS SETUP.
-// Assuming controls is an instance of THREE.OrbitControls
 //scene setup
 
 
@@ -305,11 +300,7 @@ let camera = setupCamera();
 const renderer = setupRenderer();
 // controls setup
 let controls = setupControls(camera, renderer);
-// light setup
 
-// Second light setup
-
-// Third light setup
 // Create the cube by calling the create cube function.
 
 // Create the plane by calling the create plane function.
@@ -323,29 +314,35 @@ const skateboard4 = createSkateboard(scene, "Purple", "Purple");
 // Create the signpost
 const post = createPost(scene);
 const sign = createSign(scene, post);
-// Position of the first skateboard on the z-axis
-// Position of the second skateboard the 3 axis's.
-const bowl = createTipBowl();
-bowl.name = "tipBowl"; // adds a identifier to the bowl
 
-scene.add(bowl);
+const blueBowl = createTipBowl();
+blueBowl.name = "tipBowl1"; // adds a identifier to the bowl
+scene.add(blueBowl);
+const redBowl = createTipBowl();
+redBowl.position.x = 5; // Adjust the position as needed
+redBowl.position.z = -10; // Adjust the position as needed
+redBowl.name = "tipBowl2"; // adds a identifier to the bowl
+scene.add(redBowl);
 
+redBowl.material.color.set(0xff0000); // Set the color to red
 
 const glassExhibit = createGlassExhibit();
 scene.add(glassExhibit);
 glassExhibit.position.set(2, 1.5,-10);
 const backWall = createBackWall();
 scene.add(backWall);
-skateboard1.position.set(-1, 1.5,-10);
-skateboard1.rotation.x = Math.PI / 2;
-skateboard2.position.set(1, 1.5,-10);
-skateboard2.rotation.x = Math.PI / 2;
-skateboard3.position.set(3, 1.5,-10);
-skateboard3.rotation.x = Math.PI / 2;
-skateboard4.position.set(5, 1.5,-10);
-skateboard4.rotation.x = Math.PI / 2;
+skateboard1.position.set(-1, 1.5, -14.5,);
+skateboard2.position.set(1, 1.5, -14.5,);
+skateboard3.position.set(3, 1.5, -14.5,);
+skateboard4.position.set(5, 1.5, -14.5,);
+
+// Rotate the skateboards
+skateboard1.rotation.x = Math.PI / 4; // Rotate 45 degrees around the y-axis
+skateboard2.rotation.x = Math.PI / 4; // Rotate 45 degrees around the y-axis
+skateboard3.rotation.x = Math.PI / 4; // Rotate 45 degrees around the y-axis
+skateboard4.rotation.x = Math.PI / 4; // Rotate 45 degrees around the y-axis
 skateboard1.name = "skateboard1";
-scene.add(skateboard1);
+scene.add(skateboard1, skateboard2, skateboard3, skateboard4);
 // call the setupSecondCamera function to set up the second camera that will be used when the user clicks on the skateboard.
 // Setup cameras
 let firstCamera = setupCamera(9, 4, 10, Math.PI / 2);
@@ -402,6 +399,7 @@ loadAndCreateText(
 'red', // The color of the text
 [-4, 5, -14], // The cordiantes of the text on the x, y, and z axis. You can change this to position the text wherever you want.
 );
+
 function moveCameraTo(targetPosition, lookAtPosition, duration = 2000) {
     new Tween.Tween(camera.position)
         .to({
@@ -432,25 +430,27 @@ window.addEventListener('click', (event) => {
     raycaster.setFromCamera(mouse, camera);
 
     // Calculate objects intersecting the picking ray
-    const intersects = raycaster.intersectObjects(scene.children).concat(raycaster.intersectObject(skateboard1, true));    
+    const intersects = raycaster.intersectObjects(scene.children);
 
     for (let i = 0; i < intersects.length; i++) {
-        if (intersects[i].object.name === "tipBowl") {
-            console.log('Tip bowl has been clicked');
+        if (intersects[i].object.name === "tipBowl1") {
+            console.log('Tip bowl 1 has been clicked');
             const targetPosition = new THREE.Vector3(1, 4, -6);
             const lookAtPosition = new THREE.Vector3(1, 4, -10);
             moveCameraTo(targetPosition, lookAtPosition);
             break;
-        } else if (intersects[i].object.name === "skateboard1") {
-            console.log('Skateboard 1 has been clicked');
-            const targetPosition = new THREE.Vector3(0, 5, 10); // Replace with the initial position of the camera
-            const lookAtPosition = new THREE.Vector3(0, 0, 0); // Replace with the initial lookAt position of the camera
-            console.log(intersects.map(i => i.object.name));
+        } else if (intersects[i].object.name === "tipBowl2") {
+            console.log('Tip bowl 2 has been clicked');
+            const targetPosition = new THREE.Vector3(0, 4, 9); // Update as needed
+            const lookAtPosition = new THREE.Vector3(0, 4, -12); // Update as needed
             moveCameraTo(targetPosition, lookAtPosition);
             break;
+            // Then give the user the controls back. This will allow the user to move the camera around.
+
+         }
         }
     }
-});
+);
 
 
 // Render the scene and update the position of the rectangle
