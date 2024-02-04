@@ -171,29 +171,53 @@ function createSign(scene, post) {
     return sign;
 }
 
+// This function creates a 3D model of a shelf using Three.js
 function createShelf() {
+    // Create a new group to hold the parts of the shelf
     const shelfGroup = new THREE.Group();
+
+    // Define the geometry for the shelves. This creates a box shape with dimensions 1x0.1x0.5.
     const shelfGeometry = new THREE.BoxGeometry(1, 0.1, 0.5);
+
+    // Define the material for the shelves. This creates a standard material with a brown color.
     const shelfMaterial = new THREE.MeshStandardMaterial({ color: 0x8B4513 });
 
+    // Create 3 shelves and add them to the shelf group
     for (let i = 0; i < 3; i++) {
+        // Create a new mesh with the shelf geometry and material
         const shelf = new THREE.Mesh(shelfGeometry, shelfMaterial);
+
+        // Position the shelf vertically, with a spacing of 1.2 units between each shelf
         shelf.position.y = i * 1.2 - 1;
+
+        // Enable shadows for the shelf
         shelf.castShadow = true;
         shelf.receiveShadow = true;
+
+        // Add the shelf to the shelf group
         shelfGroup.add(shelf);
     }
 
+    // Define the geometry for the sides of the shelf. This creates a box shape with dimensions 0.1x3x0.5.
     const sideGeometry = new THREE.BoxGeometry(0.1, 3, 0.5);
 
+    // Create 2 sides and add them to the shelf group
     for (let i = 0; i < 2; i++) {
+        // Create a new mesh with the side geometry and material
         const side = new THREE.Mesh(sideGeometry, shelfMaterial);
+
+        // Position the side horizontally, with one side at x=-0.5 and the other at x=0.5
         side.position.x = i * 1 - 0.5;
+
+        // Enable shadows for the side
         side.castShadow = true;
         side.receiveShadow = true;
+
+        // Add the side to the shelf group
         shelfGroup.add(side);
     }
 
+    // Return the shelf group, which now contains the 3 shelves and 2 sides
     return shelfGroup;
 }
 
@@ -331,17 +355,30 @@ scene.add(glassExhibit);
 glassExhibit.position.set(2, 1.5,-10);
 const backWall = createBackWall();
 scene.add(backWall);
-skateboard1.position.set(-1, 1.5, -14.5,);
-skateboard2.position.set(1, 1.5, -14.5,);
-skateboard3.position.set(3, 1.5, -14.5,);
-skateboard4.position.set(5, 1.5, -14.5,);
+skateboard1.position.set(-1, 2.5, -14.5,);
+skateboard2.position.set(1, 2.5, -14.5,);
+skateboard3.position.set(3, 2.5, -14.5,);
+skateboard4.position.set(5, 2.5, -14.5,);
 
 // Rotate the skateboards
-skateboard1.rotation.x = Math.PI / 4; // Rotate 45 degrees around the y-axis
-skateboard2.rotation.x = Math.PI / 4; // Rotate 45 degrees around the y-axis
-skateboard3.rotation.x = Math.PI / 4; // Rotate 45 degrees around the y-axis
-skateboard4.rotation.x = Math.PI / 4; // Rotate 45 degrees around the y-axis
-skateboard1.name = "skateboard1";
+skateboard1.rotation.x = Math.PI /4; // Rotate 45 degrees around the x-axis
+skateboard1.rotation.y = Math.PI /2; // Rotate 90 degrees around the y-axis
+
+// Apply the same rotation to other skateboards
+skateboard2.rotation.x = skateboard1.rotation.x;
+skateboard2.rotation.y = skateboard1.rotation.y;
+
+skateboard3.rotation.x = skateboard1.rotation.x;
+skateboard3.rotation.y = skateboard1.rotation.y;
+
+skateboard4.rotation.x = skateboard1.rotation.x;
+skateboard4.rotation.y = skateboard1.rotation.y;
+
+skateboard1.name = "skateboard1"; // Add a identifier to the skateboard.
+skateboard2.name = "skateboard2"; // Add a identifier to the skateboard.
+skateboard3.name = "skateboard3"; // Add a identifier to the skateboard.
+skateboard4.name = "skateboard4"; // Add a identifier to the skateboard.
+
 scene.add(skateboard1, skateboard2, skateboard3, skateboard4);
 // call the setupSecondCamera function to set up the second camera that will be used when the user clicks on the skateboard.
 // Setup cameras
