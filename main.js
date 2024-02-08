@@ -2,8 +2,9 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import Tween from '@tweenjs/tween.js';
 import { FontLoader } from 'three/examples/jsm/loaders/FontLoader.js';
+import { Text } from 'troika-three-text';
 
-/**
+/*
  * This function sets up a new THREE.js scene.
  *
  * @returns {THREE.Scene} - The created scene.
@@ -13,7 +14,7 @@ function setupScene() {
     return scene;
 }
 
-/**
+/*
  * This function sets up a new THREE.js camera with a perspective projection.
  *
  * @param {number} x - The x-coordinate of the camera's position.
@@ -29,7 +30,7 @@ function setupCamera(x = 0, y = 5, z = 10, rotationY = 0) {
     return camera;
 }
 
-/**
+/*
  * This function sets up a new THREE.js renderer with antialiasing.
  *
  * @returns {THREE.WebGLRenderer} - The created renderer.
@@ -43,7 +44,7 @@ function setupRenderer() {
     return renderer;
 }
 
-/**
+/*
  * This function sets up new OrbitControls for a given camera and renderer.
  *
  * @param {THREE.Camera} camera - The camera for which the controls will be set up.
@@ -61,7 +62,7 @@ function setupControls(camera, renderer, controls, enabled) {
     return controls;
 }
 
-/**
+/*
  * This function sets up a new THREE.js point light and adds it to a given scene.
  *
  * @param {THREE.Scene} scene - The scene to which the light will be added.
@@ -84,49 +85,11 @@ function setupLight(scene) {
     return light;
 }
 
-/**
- * This function loads a font from a given URL using the THREE.js FontLoader.
- *
- * @param {string} url - The URL of the font to load.
- * @returns {Promise<THREE.Font>} - A promise that resolves with the loaded font.
- */
-function loadFont(url) {
-    return new Promise((resolve, reject) => {
-        // Create a new FontLoader
-        const loader = new THREE.FontLoader();
 
-        // Load the font from the URL and resolve/reject the promise accordingly
-        loader.load(url, resolve, undefined, reject);
-    });
-}
 
-/**
- * This function creates a 3D text object using a given font, text string, size, and color.
- *
- * @param {THREE.Font} font - The font to use for the text.
- * @param {string} textString - The string of text to create.
- * @param {number} size - The size of the text.
- * @param {string} color - The color of the text.
- * @returns {THREE.Mesh} - The created text as a THREE.Mesh object.
- */
-function createText(font, textString, size, color) {
-    // Generate shapes from the text string using the font
-    const shapes = font.generateShapes(textString, size);
 
-    // Create a ShapeGeometry from the shapes
-    const geometry = new THREE.ShapeGeometry(shapes);
 
-    // Create a MeshBasicMaterial with the given color
-    const material = new THREE.MeshBasicMaterial({ color: color });
-
-    // Create a Mesh from the geometry and material
-    const text = new THREE.Mesh(geometry, material);
-
-    // Return the text
-    return text;
-}
-
-/**
+/*
  * This function creates a 3D model of a skateboard using the THREE.js library.
  *
  * @param {THREE.Scene} scene - The scene to which the skateboard will be added.
@@ -157,7 +120,7 @@ function createSkateboard(scene, boardColor, wheelColor) {
     return skateboard;
 }
 
-/**
+/*
  * This function creates a 3D model of a board using the THREE.js library.
  *
  * @param {string} color - The color of the board.
@@ -190,7 +153,7 @@ function createBoard(color) {
     return board;
 }
 
-/**
+/*
  * This function creates 3D models of wheels using the THREE.js library.
  *
  * @param {string} color - The color of the wheels.
@@ -238,7 +201,7 @@ function createWheels(color) {
     return wheels;
 }
 
-/**
+/*
  * This function creates 3D models of trucks using the THREE.js library.
  *
  * @returns {Array<THREE.Mesh>} - An array of trucks as THREE.Mesh objects.
@@ -280,7 +243,7 @@ function createTrucks() {
 }
 
 
-/**
+/*
  * This function creates a 3D model of a plane using the THREE.js library.
  *
  * @param {THREE.Scene} scene - The scene to which the plane will be added.
@@ -309,7 +272,7 @@ function createPlane(scene) {
     return plane;
 }
 
-/**
+/*
  * This function creates a 3D model of a post using the THREE.js library.
  *
  * @param {THREE.Scene} scene - The scene to which the post will be added.
@@ -340,7 +303,7 @@ function createPost(scene) {
     return post;
 }
 
-/**
+/*
  * This function creates a 3D model of a sign using the THREE.js library.
  *
  * @param {THREE.Scene} scene - The scene to which the sign will be added.
@@ -423,7 +386,7 @@ function createShelf() {
     return shelfGroup;
 }
 
-/**
+/*
  * This function creates a 3D model of a lamp post using the THREE.js library.
  *
  * @param {number} postColor - The color of the lamp post.
@@ -503,6 +466,7 @@ function createGlassExhibit() {
 
     return exhibit;
 }
+
 function createTipBowl() {
     // Define the points for the shape of the bowl
     const points = [];
@@ -529,7 +493,8 @@ function createTipBowl() {
     return bowl;
 }
 
-/**
+
+/*
  * This function creates a back wall using THREE.js.
  *
  * @returns {THREE.Mesh} - The created back wall as a THREE.Mesh object.
@@ -554,6 +519,10 @@ function createBackWall() {
     // Return the wall
     return wall;
 }
+
+
+
+
 
 // Set up the scene, camera, renderer, controls, light, cube, plane, and rectangle and other objects in the scene here.
 // MAKE SURE TO ADD AFTER THE SCENE IS SETUP.
@@ -623,9 +592,39 @@ skateboard3.name = "skateboard3"; // Add a identifier to the skateboard.
 skateboard4.name = "skateboard4"; // Add a identifier to the skateboard.
 
 scene.add(skateboard1, skateboard2, skateboard3, skateboard4);
+// Define the colors for the wheels
+const colors = ["Black", "Red", "Blue", "Green", "Purple", "Yellow"];
+
+// Iterate over the colors
+// Define an array of colors for the wheels
+const wheelColors = ["Black", "Red", "Blue", "Green"];
+
+// We will create a set of wheels for each color
+for (let colorIndex = 0; colorIndex < wheelColors.length; colorIndex++) {
+    // Get the current color
+    const currentColor = wheelColors[colorIndex];
+
+    // We will create four wheels of each color
+    for (let wheelNumber = 0; wheelNumber < 4; wheelNumber++) {
+        // Create a wheel with the current color
+        const wheel = createWheels(currentColor)[0];
+
+        // Set the position of the wheel
+        // The x position is offset based on the wheel number
+        // The y position is constant
+        // The z position is offset based on the color index
+        wheel.position.set(2 + wheelNumber * 0.15, 1.5, -10 - colorIndex * 0.1);
+
+        // Rotate the wheel 90 degrees around the x-axis
+        wheel.rotation.x = Math.PI / 2;
+
+        // Add the wheel to the scene
+        scene.add(wheel);
+    }
+}
 // call the setupSecondCamera function to set up the second camera that will be used when the user clicks on the skateboard.
 // Setup cameras
-let firstCamera = setupCamera(9, 4, 10, Math.PI / 2);
+let firstCamera = setupCamera(4, 4, 10, Math.PI / 2);
 let currentCamera = firstCamera; // Initialize currentCamera to firstCamera
 let secondCamera = setupCamera(0, 15, 10, Math.PI / 2);
 scene.add(firstCamera);
@@ -654,54 +653,27 @@ const shelf = createShelf();
 shelf.position.set(-10, 1.5, -10);
 // Add the shelf to the scene
 scene.add(shelf);
+// Create a Text instance
+const text = new Text();
 
-// Create a red lamp post with increased brightness and position it in the scene
-createAndPositionLampPost(0x000000, 0xff0000, [-5, 1.5, -10], 0.53);
+// Set properties to define the text
+text.text = 'Welcome to the Exhibit!';
+text.fontSize = 0.5;
+text.color = 0x9966FF;
 
-// Create a green lamp post with decreased brightness and position it in the scene
-createAndPositionLampPost(0x000000, 0x00ff00, [10, 1.5, -10], 0.5);
+// Synchronize the text's properties to its mesh
+text.sync();
 
-/**
- * This function loads a font from a given path, creates a text object with the loaded font, and adds the text object to the scene.
- *
- * @param {string} fontPath - The path of the font to load.
- * @param {string} textString - The string of text to create.
- * @param {number} size - The size of the text.
- * @param {string} color - The color of the text.
- * @param {Array<number>} position - The position of the text.
- * @param {number} rotationY - The rotation of the text around the y-axis.
- */
-function loadAndCreateText(fontPath, textString, size, color, position, rotationY) {
-    // Load the font from the given path
-    loadFont(fontPath)
-        .then(font => {
-            // Create a text object with the loaded font
-            const text = createText(font, textString, size, color);
+// Position the text on the back wall of the exhibit
+text.position.set(0, 4, -14.5);
 
-            // Set the position of the text
-            text.position.set(...position);
+// Add the text to the scene
+scene.add(text);
+// Create a strawberry lamp post with increased brightness and position it in the scene
+createAndPositionLampPost(0xffffff, 0xff0000, [-5, 1.5, -10], 0.53);
 
-            // If a rotation around the y-axis is specified, set the rotation of the text
-            if (rotationY !== undefined) {
-                text.rotation.y = rotationY;
-            }
-
-            // Add the text to the scene
-            scene.add(text);
-        })
-        .catch(error => {
-            // If there is an error loading the font, log the error
-            console.error('Error loading font:', error);
-        });
-}
-
-loadAndCreateText(
-    '/node_modules/three/examples/fonts/optimer_bold.typeface.json', // The path to the font file
-'Welcome to the shop menu. Enjoy your stay.',// The text to display in the scene. You can change this to whatever you want. Or copy this as a layout for your own text.
-0.5, // The size of the text
-'red', // The color of the text
-[-4, 5, -14], // The cordiantes of the text on the x, y, and z axis. You can change this to position the text wherever you want.
-);
+// Create a strawberry lamp post with decreased brightness and position it in the scene
+createAndPositionLampPost(0xffffff, 0xff00ff, [10, 1.5, -10], 0.5);
 
 function moveCameraTo(targetPosition, lookAtPosition, duration = 2000) {
     new Tween.Tween(camera.position)
