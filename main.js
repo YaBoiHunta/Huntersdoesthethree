@@ -336,16 +336,16 @@ function createSign(scene, post) {
     return sign;
 }
 
-// This function creates a 3D model of a shelf using Three.js
-function createShelf() {
+// This function creates a 3D model of a wall shelf using Three.js
+function createWallShelf() {
     // Create a new group to hold the parts of the shelf
     const shelfGroup = new THREE.Group();
 
-    // Define the geometry for the shelves. This creates a box shape with dimensions 1x0.1x0.5.
-    const shelfGeometry = new THREE.BoxGeometry(1, 0.1, 0.5);
+    // Define the geometry for the shelves. This creates a box shape with dimensions 5x0.2x0.2.
+    const shelfGeometry = new THREE.BoxGeometry(5, 0.2, 2);
 
     // Define the material for the shelves. This creates a standard material with a brown color.
-    const shelfMaterial = new THREE.MeshStandardMaterial({ color: 0x8B4513 });
+    const shelfMaterial = new THREE.MeshToonMaterial({ color: 0x8B4513 });
 
     // Create 3 shelves and add them to the shelf group
     for (let i = 0; i < 3; i++) {
@@ -353,7 +353,7 @@ function createShelf() {
         const shelf = new THREE.Mesh(shelfGeometry, shelfMaterial);
 
         // Position the shelf vertically, with a spacing of 1.2 units between each shelf
-        shelf.position.y = i * 1.2 - 1;
+        shelf.position.y = i * 1.2;
 
         // Enable shadows for the shelf
         shelf.castShadow = true;
@@ -363,29 +363,25 @@ function createShelf() {
         shelfGroup.add(shelf);
     }
 
-    // Define the geometry for the sides of the shelf. This creates a box shape with dimensions 0.1x3x0.5.
-    const sideGeometry = new THREE.BoxGeometry(0.1, 3, 0.5);
+    // Define the geometry for the back of the shelf. This creates a box shape with dimensions 5x3x0.1.
+    const backGeometry = new THREE.BoxGeometry(5, 3, 0.1);
 
-    // Create 2 sides and add them to the shelf group
-    for (let i = 0; i < 2; i++) {
-        // Create a new mesh with the side geometry and material
-        const side = new THREE.Mesh(sideGeometry, shelfMaterial);
+    // Create the back and add it to the shelf group
+    const back = new THREE.Mesh(backGeometry, shelfMaterial);
 
-        // Position the side horizontally, with one side at x=-0.5 and the other at x=0.5
-        side.position.x = i * 1 - 0.5;
+    // Position the back at y=1.2 (halfway up the height of the shelf) and z=-0.15 (slightly behind the center of the shelf)
+    back.position.set(0, 1.2, -0.15);
 
-        // Enable shadows for the side
-        side.castShadow = true;
-        side.receiveShadow = true;
+    // Enable shadows for the back
+    back.castShadow = true;
+    back.receiveShadow = true;
 
-        // Add the side to the shelf group
-        shelfGroup.add(side);
-    }
+    // Add the back to the shelf group
+    shelfGroup.add(back);
 
-    // Return the shelf group, which now contains the 3 shelves and 2 sides
+    // Return the shelf group, which now contains the 3 shelves, 2 sides, and back
     return shelfGroup;
 }
-
 /*
  * This function creates a 3D model of a lamp post using the THREE.js library.
  *
@@ -436,6 +432,127 @@ function createLampPost(postColor, lightColor) {
 
     // Return the lamp post group
     return lampPostGroup;
+}
+
+// Function to create a hat
+function createHat(x, y, z) {
+    // Define the color of the hat
+    const hatColor = 0x000000; // black
+
+    // Create a group to hold the parts of the hat
+    const hat = new THREE.Group();
+
+    // Create the crown of the hat
+    const crownGeometry = new THREE.ConeGeometry(0.2, 0.3, 32);
+    const crownMaterial = new THREE.MeshStandardMaterial({ color: hatColor, shininess: 100 });
+    const crown = new THREE.Mesh(crownGeometry, crownMaterial);
+    hat.add(crown);
+
+    // Create the brim of the hat
+    const brimGeometry = new THREE.TorusGeometry(0.3, 0.10, 16, 100, Math.PI * 2);
+    const brimMaterial = new THREE.MeshPhongMaterial({ color: hatColor, shininess: 100 });
+    const brim = new THREE.Mesh(brimGeometry, brimMaterial);
+    brim.rotation.x = Math.PI / 2; // rotate the brim to make it horizontal
+    brim.position.y = -0.15; // position the brim slightly below the crown
+    hat.add(brim);
+
+    // Position the hat
+    hat.position.set(x, y, z);
+
+    return hat;
+}
+
+// Function to create a wax bar
+function createWaxBar(x, y, z) {
+    // Create the geometry for the wax bar
+    const barGeometry = new THREE.BoxGeometry(0.5, 0.3, 0.05);
+
+    // Create the material for the wax bar
+    const barMaterial = new THREE.MeshPhongMaterial({ color: 0xFFFFFF, shininess: 100 }); // white color for wax bar
+
+    // Create the wax bar
+    const bar = new THREE.Mesh(barGeometry, barMaterial);
+
+    // Position the wax bar
+    bar.position.set(x, y, z);
+
+    return bar;
+}
+
+
+// Function to create a high-quality coat hanger
+function createHanger(x, y, z) {
+    // Create a group to hold the parts of the hanger
+    const hanger = new THREE.Group();
+
+    // Create the body of the hanger
+    const curve = new THREE.CatmullRomCurve3([
+        new THREE.Vector3(-0.15, 0, 0),
+        new THREE.Vector3(-0.05, 0.05, 0),
+        new THREE.Vector3(0.05, 0.05, 0),
+        new THREE.Vector3(0.15, 0, 0)
+    ]);
+    const bodyGeometry = new THREE.TubeGeometry(curve, 20, 0.01, 8, false);
+    const bodyMaterial = new THREE.MeshPhongMaterial({ color: 0x808080, shininess: 100 }); // grey color for body
+    const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
+    hanger.add(body);
+
+    // Create the hook of the hanger
+    const hookGeometry = new THREE.CylinderGeometry(0.01, 0.01, 0.1, 32);
+    const hookMaterial = new THREE.MeshPhongMaterial({ color: 0x808080, shininess: 100 }); // grey color for hook
+    const hook = new THREE.Mesh(hookGeometry, hookMaterial);
+    hook.position.y = 0.05; // position the hook above the body
+    hanger.add(hook);
+
+    // Position the hanger
+    hanger.position.set(x, y, z);
+
+    return hanger;
+}
+
+// Function to create a T-shirt
+function createTShirt(x, y, z) {
+    // Create the body of the T-shirt
+    const bodyGeometry = new THREE.BoxGeometry(0.2, 0.3, 0.02);
+    const bodyMaterial = new THREE.MeshLambertMaterial({ color: 0xFF0000 }); // red color for body
+    const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
+
+    // Create the sleeves of the T-shirt
+    const sleeveGeometry = new THREE.BoxGeometry(0.08, 0.12, 0.02);
+    const sleeveMaterial = new THREE.MeshLambertMaterial({ color: 0xFF0000 }); // red color for sleeves
+    const leftSleeve = new THREE.Mesh(sleeveGeometry, sleeveMaterial);
+    leftSleeve.position.set(-0.15, 0, 0);
+    body.add(leftSleeve);
+    const rightSleeve = leftSleeve.clone();
+    rightSleeve.position.set(0.15, 0, 0);
+    body.add(rightSleeve);
+
+    // Position the T-shirt
+    body.position.set(x, y, z);
+
+    return body;
+}
+
+
+
+// Function to create a bar
+function createBar(x, y, z, length) {
+    // Create the geometry for the bar
+    const barGeometry = new THREE.CylinderGeometry(0.01, 0.01, length, 90);
+
+    // Create the material for the bar
+    const barMaterial = new THREE.MeshPhongMaterial({ color: 0x808080, shininess: 100 }); // grey color for bar
+
+    // Create the bar
+    const bar = new THREE.Mesh(barGeometry, barMaterial);
+
+    // Rotate the bar to make it horizontal
+    bar.rotation.x = Math.PI / 2;
+
+    // Position the bar
+    bar.position.set(x, y, z);
+
+    return bar;
 }
 
 function createGlassExhibit() {
@@ -559,6 +676,53 @@ redBowl.position.x = 5; // Adjust the position as needed
 redBowl.position.z = -10; // Adjust the position as needed
 redBowl.name = "tipBowl2"; // adds a identifier to the bowl
 scene.add(redBowl);
+// Lets add the shelf to the scene
+const shelf = createWallShelf();
+scene.add(shelf);
+shelf.position.set(-4.5, 2, -14.5);
+// Add the hats to the shelf and scene.
+const hat1 = createHat(-4.5, 2.4, -14);
+const hat2 = createHat(-4.5, 3.5, -14);
+const hat3 = createHat(-3, 2.4, -14);
+const hat4 = createHat(-3, 3.5, -14);
+scene.add(hat1, hat2, hat3, hat4);
+// Add the coat hangers to the shelf and scene.
+const hanger1 = createHanger(-9, 2, 7);
+scene.add(hanger1);
+
+const hanger2 = createHanger(-9, 2, -2);
+scene.add(hanger2);
+
+const hanger3 = createHanger(-9, 2, 0);
+scene.add(hanger3);
+
+const hanger4 = createHanger(-9, 2, 2);
+scene.add(hanger4);
+
+const hanger5 = createHanger(-9, 2, 5);
+scene.add(hanger5);
+
+// Add the bar to the scene
+let bar = createBar(-9, 2, 4, 8);
+scene.add(bar);
+// Create a T-shirt and add it to a hanger
+const tShirt1 = createTShirt(0, 0, 0);
+hanger1.add(tShirt1);
+const tShirt2 = createTShirt(0, 0, 0);
+const tShirt3 = createTShirt(0, 0, 0);
+const tShirt4 = createTShirt(0, 0, 0);
+const tShirt5 = createTShirt(0, 0, 0);
+hanger2.add(tShirt2);
+hanger3.add(tShirt3);
+hanger4.add(tShirt4);
+hanger5.add(tShirt5);
+
+// Create a wax bar and add it to the scene
+const waxBar = createWaxBar(-4, 4.5, -14);
+scene.add(waxBar);
+
+
+
 
 redBowl.material.color.set(0xff0000); // Set the color to red
 
@@ -634,7 +798,7 @@ thirdCamera.lookAt(glassExhibit.position);
 
 
 let overHeadLight = setupLight(scene);
-overHeadLight.position.set(1, 6, -7);
+overHeadLight.position.set(1, 10, -7);
 // Create a raycaster and a mouse vector
 
 
@@ -647,33 +811,25 @@ function createAndPositionLampPost(baseColor, lightColor, position, intensity) {
     lampPost.position.set(...position);
     scene.add(lampPost);
 }
-// Create and position objects
-// Create a shelf object and set its position
-const shelf = createShelf();
-shelf.position.set(-10, 1.5, -10);
-// Add the shelf to the scene
-scene.add(shelf);
+
 // Create a Text instance
 const text = new Text();
-
 // Set properties to define the text
-text.text = 'Welcome to the Exhibit!';
-text.fontSize = 0.5;
-text.color = 0x9966FF;
-
+text.text = 'Welcome to the skateboard shop'; // Set the text to display
+text.fontSize = 0.5; // Set the font size
+text.color = 0x9966FF; // Set the color
 // Synchronize the text's properties to its mesh
 text.sync();
-
 // Position the text on the back wall of the exhibit
-text.position.set(0, 4, -14.5);
+text.position.set(-1, 5, -14);
 
 // Add the text to the scene
 scene.add(text);
 // Create a strawberry lamp post with increased brightness and position it in the scene
-createAndPositionLampPost(0xffffff, 0xff0000, [-5, 1.5, -10], 0.53);
+createAndPositionLampPost(0xffffff, 0xff0000, [-8, 1.5, -10], 0.53);
 
 // Create a strawberry lamp post with decreased brightness and position it in the scene
-createAndPositionLampPost(0xffffff, 0xff00ff, [10, 1.5, -10], 0.5);
+createAndPositionLampPost(0xffffff, 0xff00ff, [13, 1.5, -10], 0.5);
 
 function moveCameraTo(targetPosition, lookAtPosition, duration = 2000) {
     new Tween.Tween(camera.position)
