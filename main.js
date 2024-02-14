@@ -345,7 +345,7 @@ function createWallShelf() {
     const shelfGeometry = new THREE.BoxGeometry(5, 0.2, 2);
 
     // Define the material for the shelves. This creates a standard material with a brown color.
-    const shelfMaterial = new THREE.MeshToonMaterial({ color: 0x8B4513 });
+    const shelfMaterial = new THREE.MeshPhysicalMaterial({ color: 0x8B4513 });
 
     // Create 3 shelves and add them to the shelf group
     for (let i = 0; i < 3; i++) {
@@ -437,7 +437,7 @@ function createLampPost(postColor, lightColor) {
 // Function to create a hat
 function createHat(x, y, z) {
     // Define the color of the hat
-    const hatColor = 0x000000; // black
+    const hatColor = 0xFF0000; // black color for hat
 
     // Create a group to hold the parts of the hat
     const hat = new THREE.Group();
@@ -512,25 +512,41 @@ function createHanger(x, y, z) {
 
 // Function to create a T-shirt
 function createTShirt(x, y, z) {
-    // Create the body of the T-shirt
-    const bodyGeometry = new THREE.BoxGeometry(0.2, 0.3, 0.02);
-    const bodyMaterial = new THREE.MeshLambertMaterial({ color: 0xFF0000 }); // red color for body
-    const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
+    // Create a T-shirt shape
+    const shape = new THREE.Shape();
+    shape.moveTo(-1, -1);
+    shape.lineTo(-1, 2);
+    shape.lineTo(-0.5, 2);
+    shape.lineTo(0, 1.5);
+    shape.lineTo(0.5, 2);
+    shape.lineTo(1, 2);
+    shape.lineTo(1, -1);
+    shape.lineTo(-1, -1);
 
-    // Create the sleeves of the T-shirt
-    const sleeveGeometry = new THREE.BoxGeometry(0.08, 0.12, 0.02);
-    const sleeveMaterial = new THREE.MeshLambertMaterial({ color: 0xFF0000 }); // red color for sleeves
-    const leftSleeve = new THREE.Mesh(sleeveGeometry, sleeveMaterial);
-    leftSleeve.position.set(-0.15, 0, 0);
-    body.add(leftSleeve);
-    const rightSleeve = leftSleeve.clone();
-    rightSleeve.position.set(0.15, 0, 0);
-    body.add(rightSleeve);
+    // Define extrude settings
+    const extrudeSettings = {
+        steps: 2,
+        depth: 0.02,
+        bevelEnabled: true,
+        bevelThickness: 0.01,
+        bevelSize: 0.01,
+        bevelOffset: 0,
+        bevelSegments: 1
+    };
+
+    // Create a geometry by extruding the shape
+    const geometry = new THREE.ExtrudeGeometry(shape, extrudeSettings);
+
+    // Create a material
+    const material = new THREE.MeshLambertMaterial({ color: 0xFF0000 }); // red color for T-shirt
+
+    // Create a mesh using the geometry and material
+    const tShirt = new THREE.Mesh(geometry, material);
 
     // Position the T-shirt
-    body.position.set(x, y, z);
+    tShirt.position.set(x, y, z);
 
-    return body;
+    return tShirt;
 }
 
 
@@ -712,9 +728,7 @@ const tShirt2 = createTShirt(0, 0, 0);
 const tShirt3 = createTShirt(0, 0, 0);
 const tShirt4 = createTShirt(0, 0, 0);
 const tShirt5 = createTShirt(0, 0, 0);
-hanger2.add(tShirt2);
-hanger3.add(tShirt3);
-hanger4.add(tShirt4);
+
 hanger5.add(tShirt5);
 
 // Create a wax bar and add it to the scene
@@ -798,7 +812,7 @@ thirdCamera.lookAt(glassExhibit.position);
 
 
 let overHeadLight = setupLight(scene);
-overHeadLight.position.set(1, 10, -7);
+overHeadLight.position.set(1, 5, -7);
 // Create a raycaster and a mouse vector
 
 
